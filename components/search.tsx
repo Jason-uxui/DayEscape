@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { enAU } from "date-fns/locale"
+import { AUSTRALIA_POSTCODES, PostcodeData, findMatchingPostcodes } from "@/lib/postcodes"
 
 // List of popular locations for suggestions
 const POPULAR_LOCATIONS = [
@@ -24,6 +25,28 @@ const POPULAR_LOCATIONS = [
   "Cairns, Australia",
 ]
 
+// Create combined location data with postcodes
+const LOCATIONS_WITH_POSTCODES = [
+  { location: "Sydney, Australia", postcodes: ["2000", "2010", "2020", "2030", "2040", "2050", "2060", "2070"] },
+  { location: "Melbourne, Australia", postcodes: ["3000", "3010", "3020", "3030", "3040", "3050", "3060", "3070"] },
+  { location: "Brisbane, Australia", postcodes: ["4000", "4010", "4020", "4030", "4050", "4060", "4070"] },
+  { location: "Perth, Australia", postcodes: ["6000", "6010", "6020", "6030", "6050", "6060"] },
+  { location: "Adelaide, Australia", postcodes: ["5000", "5010", "5020", "5030", "5040"] },
+  { location: "Gold Coast, Australia", postcodes: ["4210", "4211", "4212", "4215", "4217", "4220"] },
+  { location: "Canberra, Australia", postcodes: ["2600", "2601", "2602", "2603", "2604", "2605", "2606"] },
+  { location: "Hobart, Australia", postcodes: ["7000", "7001", "7004", "7005", "7007"] },
+  { location: "Darwin, Australia", postcodes: ["0800", "0810", "0820", "0830", "0840"] },
+  { location: "Cairns, Australia", postcodes: ["4870", "4878", "4879", "4880", "4881"] },
+]
+
+// Interface for combined suggestions
+interface CombinedSuggestion {
+  display: string;
+  value: string;
+  type: 'location' | 'postcode';
+  postcode?: string;
+}
+
 export function Search() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -33,7 +56,7 @@ export function Search() {
   // Form state
   const [date, setDate] = useState<Date | undefined>(undefined)
   const [location, setLocation] = useState<string>("")
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<CombinedSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
   const [isSearching, setIsSearching] = useState<boolean>(false)
   const [errors, setErrors] = useState<{location?: string; date?: string}>({})
@@ -60,23 +83,70 @@ export function Search() {
     }
   }, [searchParams, pathname])
 
+  // Generate combined suggestions
+  const generateCombinedSuggestions = (searchTerm: string = "") => {
+    const combinedResults: CombinedSuggestion[] = [];
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    // If input is numeric, prioritize postcode search
+    if (/^\d+$/.test(searchTerm.trim())) {
+      // Add matching postcodes
+      const matchingPostcodes = findMatchingPostcodes(searchTerm.trim());
+      
+      matchingPostcodes.forEach(postcodeData => {
+        const locationData = LOCATIONS_WITH_POSTCODES.find(
+          item => item.location === postcodeData.location
+        );
+        
+        if (locationData) {
+          combinedResults.push({
+            display: `${postcodeData.location} (${postcodeData.postcode})`,
+            value: postcodeData.location,
+            type: 'postcode',
+            postcode: postcodeData.postcode
+          });
+        }
+      });
+    }
+    
+    // Add matching locations
+    LOCATIONS_WITH_POSTCODES.forEach(locationData => {
+      const locationLower = locationData.location.toLowerCase();
+      
+      if (searchTerm === "" || locationLower.includes(searchTermLower)) {
+        // Add main location with primary postcode
+        combinedResults.push({
+          display: `${locationData.location} (${locationData.postcodes[0]})`,
+          value: locationData.location,
+          type: 'location',
+          postcode: locationData.postcodes[0]
+        });
+      }
+    });
+    
+    // Remove duplicates (prefer postcode matches over location matches)
+    const uniqueResults = combinedResults.filter((suggestion, index, self) => 
+      index === self.findIndex(s => s.value === suggestion.value)
+    );
+    
+    return uniqueResults;
+  };
+
   // Handle showing suggestions when typing in location field or when focused
   useEffect(() => {
     if (location.trim() === "") {
       // Show all locations when input is empty but focused
       if (showSuggestions) {
-        setSuggestions(POPULAR_LOCATIONS)
+        setSuggestions(generateCombinedSuggestions());
       } else {
-        setSuggestions([])
+        setSuggestions([]);
       }
-      return
+      return;
     }
 
-    const filteredLocations = POPULAR_LOCATIONS.filter(loc => 
-      loc.toLowerCase().includes(location.toLowerCase())
-    )
-    setSuggestions(filteredLocations)
-  }, [location, showSuggestions])
+    // Generate suggestions based on input
+    setSuggestions(generateCombinedSuggestions(location.trim()));
+  }, [location, showSuggestions]);
 
   // Handle click outside to close suggestions list
   useEffect(() => {
@@ -94,8 +164,8 @@ export function Search() {
   }, [])
 
   // Handle selecting a suggestion
-  const handleSelectSuggestion = (suggestion: string) => {
-    setLocation(suggestion)
+  const handleSelectSuggestion = (suggestion: CombinedSuggestion) => {
+    setLocation(suggestion.value)
     setShowSuggestions(false)
     setErrors(prev => ({...prev, location: undefined}))
   }
@@ -105,7 +175,7 @@ export function Search() {
     setShowSuggestions(true)
     // If input is empty, show all locations
     if (location.trim() === "") {
-      setSuggestions(POPULAR_LOCATIONS)
+      setSuggestions(generateCombinedSuggestions());
     }
   }
 
@@ -171,7 +241,7 @@ export function Search() {
             <p className="text-red-500 text-xs mt-1 ml-9">{errors.location}</p>
           )}
           
-          {/* Suggestions list */}
+          {/* Combined suggestions list */}
           {showSuggestions && suggestions.length > 0 && (
             <div 
               ref={suggestionsRef}
@@ -189,12 +259,24 @@ export function Search() {
             >
               {suggestions.map((suggestion, index) => (
                 <div
-                  key={index}
+                  key={`suggestion-${index}`}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                   onClick={() => handleSelectSuggestion(suggestion)}
                 >
                   <MapPin className="h-4 w-4 text-[#4b5563] flex-shrink-0" />
-                  <span>{suggestion}</span>
+                  <span>
+                    {suggestion.type === 'postcode' ? (
+                      <>
+                        <span>{suggestion.value}</span>
+                        <span className="text-gray-500 ml-1">({suggestion.postcode})</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{suggestion.value}</span>
+                        <span className="text-gray-500 ml-1">({suggestion.postcode})</span>
+                      </>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
