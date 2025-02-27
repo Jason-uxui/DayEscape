@@ -1,14 +1,14 @@
 "use client"
 
-import { Calendar, MapPin, Loader2 } from "lucide-react"
+import { Calendar as CalendarIcon, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import { Calendar } from "@/components/ui/calendar"
 import { format, isBefore, startOfDay, parse, isValid } from "date-fns"
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { enAU } from "date-fns/locale"
+import { enAU, vi } from "date-fns/locale"
 import { AUSTRALIA_POSTCODES, PostcodeData, findMatchingPostcodes } from "@/lib/postcodes"
 
 // List of popular locations for suggestions
@@ -288,27 +288,21 @@ export function Search() {
           <Popover>
             <PopoverTrigger asChild>
               <button className={`mt-1 flex w-full items-center gap-2 rounded-full p-2 border ${errors.date ? 'border-red-500' : 'border-transparent'} transition-colors`}>
-                <Calendar className="h-5 w-5 text-[#4b5563]" />
+                <CalendarIcon className="h-5 w-5 text-[#4b5563]" />
                 <span className="flex-1 text-left text-[#4b5563]">
                   {date ? <span className="font-medium text-[#0c363e]">{format(date, "PPP", { locale: enAU })}</span> : "Pick a date"}
                 </span>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 z-50">
-              <CalendarComponent
+            <PopoverContent className="w-auto p-0 z-50" align="center" sideOffset={5}>
+              <Calendar
                 mode="single"
                 selected={date}
                 onSelect={handleDateSelect}
                 disabled={(date) => isBefore(date, today)}
-                initialFocus
                 locale={enAU}
-                className="rounded-md border"
-                classNames={{
-                  day_selected:
-                    "bg-[#0C363E] text-white hover:bg-[#0C363E] hover:text-white focus:bg-[#0C363E] focus:text-white",
-                  day_today: "bg-accent text-accent-foreground",
-                  day: cn("h-9 w-9 p-0 font-normal aria-selected:opacity-100"),
-                }}
+                weekStartsOn={0}
+                className="custom-calendar"
               />
             </PopoverContent>
           </Popover>

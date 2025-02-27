@@ -30,7 +30,7 @@
     "@radix-ui/react-select": "latest",
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slider": "^1.2.2",
-    "@radix-ui/react-slot": "latest",
+    "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-switch": "^1.1.2",
     "@radix-ui/react-tabs": "latest",
     "@radix-ui/react-toast": "latest",
@@ -45,7 +45,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
-    "date-fns": "latest",
+    "date-fns": "^4.1.0",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
@@ -54,7 +54,7 @@
     "next-themes": "^0.4.4",
     "qrcode.react": "latest",
     "react": "^18",
-    "react-day-picker": "latest",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.54.1",
     "react-resizable-panels": "^2.1.7",
@@ -69,8 +69,11 @@
     "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "9.21.0",
+    "eslint-config-next": "15.2.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.4.1+sha1.ec73125afa7b740b8fcafeab681883c7ec791a4b"
 }
