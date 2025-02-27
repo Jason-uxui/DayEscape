@@ -290,7 +290,7 @@ export function Search() {
               <button className={`mt-1 flex w-full items-center gap-2 rounded-full p-2 border ${errors.date ? 'border-red-500' : 'border-transparent'} transition-colors`}>
                 <Calendar className="h-5 w-5 text-[#4b5563]" />
                 <span className="flex-1 text-left text-[#4b5563]">
-                  {date ? format(date, "PPP", { locale: enAU }) : "Pick a date"}
+                  {date ? <span className="font-medium text-[#0c363e]">{format(date, "PPP", { locale: enAU })}</span> : "Pick a date"}
                 </span>
               </button>
             </PopoverTrigger>
