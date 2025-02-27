@@ -1,0 +1,116 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"
+import { ProductDialog } from "./product-dialog"
+import { useCart } from "@/contexts/CartContext"
+import { supabase } from "@/lib/supabase"
+
+export interface Product {
+  id: string
+  name: string
+  base_price: number
+  type: string
+  max_capacity: number
+}
+
+interface ProductListProps {
+  hotelId: string
+}
+
+export default function ProductList({ hotelId }: ProductListProps) {
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const { isInCart, cartVersion } = useCart()
+  const [productStatuses, setProductStatuses] = useState<{ [key: string]: string }>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true)
+        console.log("Fetching products...")
+
+        const { data, error } = await supabase
+          .from("products")
+          .select("id, name, base_price, type, max_capacity")
+          .eq("hotel_id", hotelId)
+
+        if (error) throw error
+
+        setProducts(data)
+      } catch (error: any) {
+        console.error("Error fetching products:", error)
+        setError(error.message || "An unknown error occurred")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [hotelId])
+
+  useEffect(() => {
+    const newStatuses: { [key: string]: string } = {}
+    products.forEach((product) => {
+      if (isInCart(product.id)) {
+        newStatuses[product.id] = "in cart"
+      }
+    })
+    setProductStatuses(newStatuses)
+  }, [isInCart, cartVersion, products])
+
+  if (loading) {
+    return <div>Loading products...</div>
+  }
+
+  if (error) {
+    return <div>{error}</div>
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold text-[#333333]">Available Products</h2>
+        <p className="text-[#4f4f4f]">Select your product that meets your needs</p>
+      </div>
+
+      <div className="space-y-4">
+        {products.map((product) => (
+          <div key={product.id} className="flex items-center justify-between rounded-lg border bg-white p-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-[#333333]">{product.name}</h3>
+                {productStatuses[product.id] && (
+                  <span className="rounded px-2 py-0.5 text-xs bg-green-100 text-green-600">
+                    {productStatuses[product.id]}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right flex flex-col items-end">
+                <span className="text-sm text-[#4f4f4f]">Max {product.max_capacity} People</span>
+                <span className="text-lg font-semibold text-[#333333]">${product.base_price}</span>
+              </div>
+              <Button
+                onClick={() => {
+                  setSelectedProductId(product.id)
+                  setDialogOpen(true)
+                }}
+                className="bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full"
+              >
+                Select
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <ProductDialog productId={selectedProductId || ""} open={dialogOpen} onOpenChange={setDialogOpen} />
+    </div>
+  )
+}
+
