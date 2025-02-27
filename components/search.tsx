@@ -39,10 +39,15 @@ export function Search() {
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Handle showing suggestions when typing in location field
+  // Handle showing suggestions when typing in location field or when focused
   useEffect(() => {
     if (location.trim() === "") {
-      setSuggestions([])
+      // Show all locations when input is empty but focused
+      if (showSuggestions) {
+        setSuggestions(POPULAR_LOCATIONS)
+      } else {
+        setSuggestions([])
+      }
       return
     }
 
@@ -50,7 +55,7 @@ export function Search() {
       loc.toLowerCase().includes(location.toLowerCase())
     )
     setSuggestions(filteredLocations)
-  }, [location])
+  }, [location, showSuggestions])
 
   // Handle click outside to close suggestions list
   useEffect(() => {
@@ -72,6 +77,15 @@ export function Search() {
     setLocation(suggestion)
     setShowSuggestions(false)
     setErrors(prev => ({...prev, location: undefined}))
+  }
+
+  // Handle focus on input
+  const handleInputFocus = () => {
+    setShowSuggestions(true)
+    // If input is empty, show all locations
+    if (location.trim() === "") {
+      setSuggestions(POPULAR_LOCATIONS)
+    }
   }
 
   // Handle date selection
@@ -126,7 +140,8 @@ export function Search() {
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              onFocus={() => setShowSuggestions(true)}
+              onFocus={handleInputFocus}
+              onClick={handleInputFocus}
               placeholder="Where's your next Day Escape to?"
               className="flex-1 bg-transparent outline-none placeholder:text-[#4b5563]"
             />
