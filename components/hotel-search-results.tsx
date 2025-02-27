@@ -4,8 +4,12 @@ import { useState, useEffect } from "react"
 import { HotelList } from "./hotel-list"
 import { MapView } from "./map-view"
 import { supabase, isSupabaseInitialized } from "@/lib/supabase"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { format, parse, isValid } from "date-fns"
+import { ComingSoonCard } from "./coming-soon-card"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, CheckCircle } from "lucide-react"
+import { Input } from "@/components/ui/input"
 
 interface Product {
   id: string
@@ -33,6 +37,7 @@ interface Hotel {
 }
 
 export function HotelSearchResults() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const locationParam = searchParams.get('location')
   const dateParam = searchParams.get('date')
@@ -46,6 +51,10 @@ export function HotelSearchResults() {
     location: locationParam,
     date: dateParam ? parse(dateParam, 'yyyy-MM-dd', new Date()) : null
   })
+  const [isLocationOutsideBrisbane, setIsLocationOutsideBrisbane] = useState(false)
+  const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   // Filter hotels based on search parameters
   useEffect(() => {
@@ -56,6 +65,17 @@ export function HotelSearchResults() {
     // Filter by location if provided
     if (searchInfo.location) {
       const locationLower = searchInfo.location.toLowerCase()
+      
+      // Check if location is Brisbane
+      const isBrisbaneSearch = locationLower.includes('brisbane')
+      setIsLocationOutsideBrisbane(!isBrisbaneSearch)
+      
+      // If not Brisbane, return empty results
+      if (!isBrisbaneSearch) {
+        setFilteredHotels([])
+        return
+      }
+      
       filtered = filtered.filter(hotel => 
         hotel.city.toLowerCase().includes(locationLower) || 
         hotel.country.toLowerCase().includes(locationLower) ||
@@ -151,26 +171,82 @@ export function HotelSearchResults() {
     )
   }
 
-  // Display search info if available
-  const renderSearchInfo = () => {
-    if (!searchInfo.location && !searchInfo.date) return null
-    
+  // Display Coming Soon for non-Brisbane locations
+  if (isLocationOutsideBrisbane && searchInfo.location) {
     return (
-      <div className="bg-[#f0f9ff] p-4 mb-4 rounded-lg">
-        <h2 className="text-lg font-medium text-[#0c363e] mb-2">Search Results</h2>
-        {searchInfo.location && (
-          <p className="text-[#4f4f4f]">
-            <span className="font-medium">Location:</span> {searchInfo.location}
-          </p>
-        )}
-        {searchInfo.date && (
-          <p className="text-[#4f4f4f]">
-            <span className="font-medium">Date:</span> {format(searchInfo.date, 'dd/MM/yyyy')}
-          </p>
-        )}
-        <p className="mt-2 text-sm text-[#4f4f4f]">
-          Found {filteredHotels.length} matching hotels
-        </p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 bg-white">
+        <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          {isSuccess ? (
+            <div className="text-center">
+              <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold text-[#0c363e] mb-4">Thank you!</h3>
+              <p className="text-[#4f4f4f]">
+                We'll notify you when new experiences are added to {searchInfo.location}.
+              </p>
+              
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <p className="text-sm text-[#4f4f4f] mb-4">
+                  Want to try our available locations?
+                </p>
+                <Button 
+                  className="w-full bg-[#f6ddb8] text-[#0c363e] hover:bg-[#f6ddb8]/90"
+                  onClick={() => router.push('/hotels?location=Brisbane&date=' + (dateParam || ''))}
+                >
+                  Explore Brisbane
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold text-[#0c363e] mb-4">
+                {searchInfo.location} is coming soon!
+              </h2>
+              <p className="text-[#4f4f4f] mb-6">
+                We're currently expanding. Leave your email to be the first to know when new experiences are added to {searchInfo.location}.
+              </p>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                setIsSubmitting(true);
+                
+                // Simulating an API call
+                setTimeout(() => {
+                  setIsSuccess(true);
+                  setEmail("");
+                  setIsSubmitting(false);
+                }, 1000);
+              }} className="space-y-4">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full"
+                />
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#0c363e] hover:bg-[#0c363e]/90 text-white"
+                >
+                  {isSubmitting ? "Submitting..." : "Notify Me"}
+                </Button>
+              </form>
+              
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <p className="text-sm text-[#4f4f4f] mb-4">
+                  Want to try our available locations?
+                </p>
+                <Button 
+                  className="w-full bg-[#f6ddb8] text-[#0c363e] hover:bg-[#f6ddb8]/90"
+                  onClick={() => router.push('/hotels?location=Brisbane&date=' + (dateParam || ''))}
+                >
+                  Explore Brisbane
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     )
   }
@@ -178,7 +254,6 @@ export function HotelSearchResults() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
       <div className="w-full lg:w-1/2 bg-white overflow-y-auto p-4">
-        {renderSearchInfo()}
         <HotelList 
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels} 
           selectedHotel={selectedHotel} 

@@ -146,7 +146,7 @@ export function ExperiencesSection() {
             </div>
           </div>
           <div className="mt-8 max-w-md mx-auto">
-            <ComingSoonCard />
+            <ComingSoonCard locationName="your area" />
           </div>
         </div>
       </section>
@@ -247,7 +247,7 @@ export function ExperiencesSection() {
               </div>
             ) : (
               <div className="mt-8 max-w-md mx-auto">
-                <ComingSoonCard />
+                <ComingSoonCard locationName={selectedCity} />
               </div>
             )}
           </TabsContent>

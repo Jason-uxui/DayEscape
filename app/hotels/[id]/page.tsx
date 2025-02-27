@@ -233,7 +233,7 @@ export default function HotelPage({ params }: HotelPageProps) {
                   <ProductList hotelId={hotel.id} />
                 </TabsContent>
                 <TabsContent value="reviews" className="mt-6">
-                  <ReviewsSection hotelId={hotel.id} />
+                  <ReviewsSection />
                 </TabsContent>
                 <TabsContent value="info" className="mt-6">
                   <KeyInfoSection
@@ -247,7 +247,7 @@ export default function HotelPage({ params }: HotelPageProps) {
                 </TabsContent>
               </Tabs>
 
-              <AmenitiesList amenities={hotel.amenities} />
+              <AmenitiesList />
               <LocationSection
                 displayAddress={hotel.display_address}
                 latitude={hotel.latitude}
