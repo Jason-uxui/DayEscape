@@ -80,18 +80,47 @@ export interface Database {
           name: string
           card_image: string
           display_address: string
+          city: string | null
+          status: string | null
         }
         Insert: {
           id?: string
           name: string
           card_image: string
           display_address: string
+          city?: string | null
+          status?: string | null
         }
         Update: {
           id?: string
           name?: string
           card_image?: string
           display_address?: string
+          city?: string | null
+          status?: string | null
+        }
+      }
+      products: {
+        Row: {
+          id: string
+          name: string
+          base_price: number
+          type: string
+          hotel_id: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          base_price: number
+          type: string
+          hotel_id: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          base_price?: number
+          type?: string
+          hotel_id?: string
         }
       }
     }
