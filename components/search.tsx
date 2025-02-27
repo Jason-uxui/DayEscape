@@ -4,10 +4,10 @@ import { Calendar, MapPin, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { format, isBefore, startOfDay } from "date-fns"
+import { format, isBefore, startOfDay, parse, isValid } from "date-fns"
 import { useState, useRef, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { enAU } from "date-fns/locale"
 
 // List of popular locations for suggestions
@@ -26,6 +26,8 @@ const POPULAR_LOCATIONS = [
 
 export function Search() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const today = startOfDay(new Date())
   
   // Form state
@@ -38,6 +40,25 @@ export function Search() {
   
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Initialize form values from URL parameters if on hotels page
+  useEffect(() => {
+    if (pathname === '/hotels') {
+      const locationParam = searchParams.get('location')
+      const dateParam = searchParams.get('date')
+      
+      if (locationParam) {
+        setLocation(decodeURIComponent(locationParam))
+      }
+      
+      if (dateParam) {
+        const parsedDate = parse(dateParam, 'yyyy-MM-dd', new Date())
+        if (isValid(parsedDate)) {
+          setDate(parsedDate)
+        }
+      }
+    }
+  }, [searchParams, pathname])
 
   // Handle showing suggestions when typing in location field or when focused
   useEffect(() => {
@@ -129,7 +150,7 @@ export function Search() {
   }
 
   return (
-    <div className="rounded-3xl bg-white p-4 shadow-lg">
+    <div className="rounded-3xl bg-white p-4 shadow-lg relative z-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="flex-1 relative">
           <label className="text-sm font-medium text-[#374151] ml-9">Location</label>
@@ -154,15 +175,26 @@ export function Search() {
           {showSuggestions && suggestions.length > 0 && (
             <div 
               ref={suggestionsRef}
-              className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg max-h-60 overflow-y-auto"
+              className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg overflow-y-auto"
+              style={{ 
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                maxHeight: '200px',
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+              }}
             >
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                   onClick={() => handleSelectSuggestion(suggestion)}
                 >
-                  {suggestion}
+                  <MapPin className="h-4 w-4 text-[#4b5563] flex-shrink-0" />
+                  <span>{suggestion}</span>
                 </div>
               ))}
             </div>
@@ -180,7 +212,7 @@ export function Search() {
                 </span>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 z-50">
               <CalendarComponent
                 mode="single"
                 selected={date}
