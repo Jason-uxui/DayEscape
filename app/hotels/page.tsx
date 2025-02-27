@@ -6,10 +6,12 @@ import { SiteFooter } from "@/components/sections/site-footer"
 import { Search } from "@/components/search"
 import { HotelSearchResults } from "@/components/hotel-search-results"
 import { supabase, isSupabaseInitialized } from "@/lib/supabase"
+import { useSearchParams } from "next/navigation"
 
 export default function HotelsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const checkSupabaseInitialization = async () => {
