@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect } from "react"
 import { Share, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,13 +16,7 @@ import { DiscoverMoreSection } from "@/components/sections/discover-more-section
 import { SiteFooter } from "@/components/sections/site-footer"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
-import { useSearchParams } from "next/navigation"
-
-interface HotelPageProps {
-  params: {
-    id: string
-  }
-}
+import { useSearchParams, useParams } from "next/navigation"
 
 async function getHotel(idOrName: string) {
   let query = supabase.from("hotels").select(`
@@ -63,7 +58,10 @@ async function getHotel(idOrName: string) {
   return { hotel: data[0], error: null }
 }
 
-export default function HotelPage({ params }: HotelPageProps) {
+export default function HotelPage() {
+  const params = useParams();
+  const hotelId = params.id as string;
+
   const [hotel, setHotel] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
@@ -72,7 +70,7 @@ export default function HotelPage({ params }: HotelPageProps) {
 
   useEffect(() => {
     async function fetchHotel() {
-      const { hotel, error } = await getHotel(params.id)
+      const { hotel, error } = await getHotel(hotelId)
       if (error) {
         setError(error)
       } else {
@@ -80,7 +78,7 @@ export default function HotelPage({ params }: HotelPageProps) {
       }
     }
     fetchHotel()
-  }, [params.id])
+  }, [hotelId])
 
   useEffect(() => {
     if (isUpdatingBooking) {

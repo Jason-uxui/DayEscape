@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Check } from "lucide-react"
+import { Check, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/contexts/CartContext"
 import { useRouter } from "next/navigation"
@@ -74,11 +74,10 @@ export function BookingConfirmedSection() {
         <Button
           variant="secondary"
           size="lg"
-          withArrow
           className="w-full"
           onClick={() => router.push("/users/my-bookings")}
         >
-          Review My Booking
+          Review My Booking <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
         <div>
           <Link href="/hotels" className="text-[#0f373d] hover:text-[#0f373d]/80 font-medium">

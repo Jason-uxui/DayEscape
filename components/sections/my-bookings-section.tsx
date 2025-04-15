@@ -38,63 +38,80 @@ export function MyBookingsSection() {
 
   useEffect(() => {
     async function fetchBookings() {
-      if (!user) return
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
-        let status: string
+        let status: string;
         switch (activeTab) {
           case "Ongoing":
-            status = "ongoing"
-            break
+            status = "ongoing";
+            break;
           case "Completed":
-            status = "completed"
-            break
+            status = "completed";
+            break;
           case "Canceled":
-            status = "canceled"
-            break
+            status = "canceled";
+            break;
           default:
-            status = "ongoing"
+            status = "ongoing";
         }
 
         const { data: bookingsData, error: bookingsError } = await supabase
           .from("bookings")
           .select("*")
           .eq("user_id", user.id)
-          .eq("status", status)
+          .eq("status", status);
 
-        if (bookingsError) throw bookingsError
+        if (bookingsError) {
+          console.error("Supabase bookings error:", bookingsError);
+          throw new Error(bookingsError.message || "Failed to fetch bookings");
+        }
+
+        if (!bookingsData || bookingsData.length === 0) {
+          // Không có bookings, trả về mảng rỗng
+          setBookings([]);
+          return;
+        }
 
         const bookingsWithHotels = await Promise.all(
           bookingsData.map(async (booking) => {
-            const { data: hotelData, error: hotelError } = await supabase
-              .from("hotels")
-              .select("name, card_image, display_address")
-              .eq("id", booking.hotel_id)
-              .single()
+            try {
+              const { data: hotelData, error: hotelError } = await supabase
+                .from("hotels")
+                .select("name, card_image, display_address")
+                .eq("id", booking.hotel_id)
+                .single();
 
-            if (hotelError) {
-              console.error("Error fetching hotel data:", hotelError)
-              return booking
+              if (hotelError) {
+                console.error("Error fetching hotel data:", hotelError);
+                return booking;
+              }
+
+              return { ...booking, hotel: hotelData };
+            } catch (err) {
+              console.error("Error processing hotel data for booking:", err);
+              return booking;
             }
+          })
+        );
 
-            return { ...booking, hotel: hotelData }
-          }),
-        )
-
-        setBookings(bookingsWithHotels)
+        setBookings(bookingsWithHotels || []);
       } catch (error: any) {
-        console.error("Error fetching bookings:", error)
-        setError(error.message)
+        console.error("Error fetching bookings:", error);
+        setError(error.message || "Failed to load bookings");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchBookings()
-  }, [user, activeTab])
+    fetchBookings();
+  }, [user, activeTab]);
 
   const renderBookingCard = (booking: Booking) => (
     <div key={booking.id} className="bg-white rounded-lg p-6 border">
