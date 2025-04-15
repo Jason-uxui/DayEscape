@@ -53,9 +53,11 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   h1,
   h2,
   h3,
@@ -160,15 +162,35 @@ body {
 }
 
 /* Hiển thị tên ngày trong tuần */
-.custom-calendar .rdp-head_cell:nth-child(1)::after { content: 'Su'; }
-.custom-calendar .rdp-head_cell:nth-child(2)::after { content: 'Mo'; }
-.custom-calendar .rdp-head_cell:nth-child(3)::after { content: 'Tu'; }
-.custom-calendar .rdp-head_cell:nth-child(4)::after { content: 'We'; }
-.custom-calendar .rdp-head_cell:nth-child(5)::after { content: 'Th'; }
-.custom-calendar .rdp-head_cell:nth-child(6)::after { content: 'Fr'; }
-.custom-calendar .rdp-head_cell:nth-child(7)::after { content: 'Sa'; }
+.custom-calendar .rdp-head_cell:nth-child(1)::after {
+  content: 'Su';
+}
 
-.custom-calendar .rdp-head_cell > * {
+.custom-calendar .rdp-head_cell:nth-child(2)::after {
+  content: 'Mo';
+}
+
+.custom-calendar .rdp-head_cell:nth-child(3)::after {
+  content: 'Tu';
+}
+
+.custom-calendar .rdp-head_cell:nth-child(4)::after {
+  content: 'We';
+}
+
+.custom-calendar .rdp-head_cell:nth-child(5)::after {
+  content: 'Th';
+}
+
+.custom-calendar .rdp-head_cell:nth-child(6)::after {
+  content: 'Fr';
+}
+
+.custom-calendar .rdp-head_cell:nth-child(7)::after {
+  content: 'Sa';
+}
+
+.custom-calendar .rdp-head_cell>* {
   display: none !important;
 }
 
@@ -203,13 +225,18 @@ body {
   color: white !important;
 }
 
+/* Thêm selector mới để đảm bảo tất cả các trạng thái hover đều có màu đúng */
+.custom-calendar .rdp-button[aria-selected="true"]:hover,
+.custom-calendar .rdp-day_selected.rdp-button:hover {
+  background-color: #0C363E !important;
+  color: white !important;
+  opacity: 0.9 !important;
+  /* Thêm opacity để tạo hiệu ứng hover */
+}
+
 .custom-calendar .rdp-day_today {
   border: 2px solid #0C363E !important;
   font-weight: bold !important;
-}
-
-.custom-calendar .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-  background-color: #e6f2f5 !important;
 }
 
 .custom-calendar .rdp-nav_button {
@@ -236,8 +263,8 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
-
