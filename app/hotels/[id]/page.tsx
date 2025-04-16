@@ -16,8 +16,9 @@ import { DiscoverMoreSection } from "@/components/sections/discover-more-section
 import { SiteFooter } from "@/components/sections/site-footer"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
-import { useSearchParams, useParams } from "next/navigation"
+import { useSearchParams, useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
+import Link from "next/link"
 
 async function getHotel(idOrName: string) {
   let query = supabase.from("hotels").select(`
@@ -62,11 +63,13 @@ async function getHotel(idOrName: string) {
 export default function HotelPage() {
   const params = useParams();
   const hotelId = params.id as string;
+  const router = useRouter();
 
   const [hotel, setHotel] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const [isCopied, setIsCopied] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
   const searchParams = useSearchParams()
   const isUpdatingBooking = searchParams.get("updateBooking") === "true"
 
@@ -181,6 +184,30 @@ export default function HotelPage() {
     }
   };
 
+  const handleSaveToggle = () => {
+    if (isSaved) {
+      setIsSaved(false);
+      toast.success(
+        <div className="flex flex-col">
+          <span>Removed from your Favourites</span>
+        </div>
+      );
+    } else {
+      setIsSaved(true);
+      toast.success(
+        <div className="flex flex-col space-y-2">
+          <span>Saved to your Favourites</span>
+          <Link
+            href="/users/favorites"
+            className="text-sm bg-[#0c363e] text-white py-1 px-3 rounded-md inline-block text-center hover:bg-[#0c363e]/90"
+          >
+            View Favourites
+          </Link>
+        </div>
+      );
+    }
+  };
+
   if (error) {
     return (
       <div className="min-h-screen bg-[#fdfaf5] flex flex-col">
@@ -288,9 +315,12 @@ export default function HotelPage() {
                         </>
                       )}
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <Heart className="mr-2 h-4 w-4" />
-                      Save
+                    <Button variant="outline" size="sm" onClick={handleSaveToggle}>
+                      <Heart
+                        className={`mr-2 h-4 w-4 ${isSaved ? "fill-[#e11d48]" : ""}`}
+                        color={isSaved ? "#e11d48" : "currentColor"}
+                      />
+                      {isSaved ? "Saved" : "Save"}
                     </Button>
                   </div>
                 </div>
