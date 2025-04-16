@@ -8,7 +8,6 @@ import { EscapeTypesSection } from "@/components/sections/escape-types-section"
 import { SiteFooter } from "@/components/sections/site-footer"
 import { SiteHeader } from "@/components/site-header"
 import { PerfectDaySection } from "@/components/sections/perfect-day-section"
-import { SupabaseStatus } from "@/components/supabase-status"
 
 export default function HomePage() {
   return (
@@ -23,12 +22,6 @@ export default function HomePage() {
         <EscapeTypesSection />
         <ExperiencesSection />
         <PerfectDaySection />
-        {/* Component kiểm tra kết nối Supabase - Chỉ hiển thị trong môi trường development */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="container mx-auto px-4 py-8">
-            <SupabaseStatus />
-          </div>
-        )}
       </main>
       <SiteFooter />
     </div>
