@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google"
 import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "@/components/ui/sonner"
 import { CartProvider } from "@/components/providers/cart-provider"
 import { AuthProvider } from "@/contexts/AuthContext"
 
@@ -23,7 +24,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "DayEscape",
   description: "Access world-class hotel experiences without checking in.",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -38,6 +39,7 @@ export default function RootLayout({
           <CartProvider>{children}</CartProvider>
         </AuthProvider>
         <Toaster />
+        <SonnerToaster position="top-right" />
       </body>
     </html>
   )

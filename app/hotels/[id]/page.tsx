@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useState, useEffect } from "react"
-import { Share, Heart } from "lucide-react"
+import { Share, Heart, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ProductList from "@/components/product-list"
@@ -17,6 +17,7 @@ import { SiteFooter } from "@/components/sections/site-footer"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
 import { useSearchParams, useParams } from "next/navigation"
+import { toast } from "sonner"
 
 async function getHotel(idOrName: string) {
   let query = supabase.from("hotels").select(`
@@ -65,6 +66,7 @@ export default function HotelPage() {
   const [hotel, setHotel] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const searchParams = useSearchParams()
   const isUpdatingBooking = searchParams.get("updateBooking") === "true"
 
@@ -93,6 +95,43 @@ export default function HotelPage() {
       console.log("Updating booking with:", { checkInDate, adults, children, infants, productType })
     }
   }, [isUpdatingBooking, searchParams])
+
+  const handleShare = async () => {
+    if (!hotel) return;
+
+    const shareUrl = window.location.href;
+    const shareTitle = `DayEscape - ${hotel.name}`;
+    const shareText = `Check out ${hotel.name} on DayEscape - ${hotel.description?.substring(0, 100)}...`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        toast.success("Shared successfully!");
+      } catch (error) {
+        console.error("Error sharing:", error);
+        copyToClipboard(shareUrl);
+      }
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setIsCopied(true);
+        toast.success("Link copied to clipboard!");
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((error) => {
+        console.error("Failed to copy:", error);
+        toast.error("Failed to copy link");
+      });
+  };
 
   if (error) {
     return (
@@ -188,9 +227,18 @@ export default function HotelPage() {
                     <h1 className="mt-2 text-3xl font-bold text-[#0f373d]">{hotel.name}</h1>
                   </div>
                   <div className="flex gap-4">
-                    <Button variant="outline" size="sm">
-                      <Share className="mr-2 h-4 w-4" />
-                      Share
+                    <Button variant="outline" size="sm" onClick={handleShare}>
+                      {isCopied ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Copied
+                        </>
+                      ) : (
+                        <>
+                          <Share className="mr-2 h-4 w-4" />
+                          Share
+                        </>
+                      )}
                     </Button>
                     <Button variant="outline" size="sm">
                       <Heart className="mr-2 h-4 w-4" />
