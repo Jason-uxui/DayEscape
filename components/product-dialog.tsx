@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Minus, Plus, Calendar } from "lucide-react"
+import { X, Minus, Plus, Calendar, AlertTriangle } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -62,6 +62,9 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
   // Kiểm tra xem sản phẩm có bị Sold Out không
   const isSoldOut = availabilityStatus.toLowerCase().includes("sold out")
 
+  // Kiểm tra xem tổng số người có vượt quá sức chứa không
+  const isOverCapacity = productDetails ? (guestCount.adults + guestCount.children > productDetails.max_capacity) : false;
+
   useEffect(() => {
     async function fetchProductDetails() {
       const { data, error } = await supabase
@@ -103,10 +106,31 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
   }, [productId, open])
 
   const updateGuestCount = (type: keyof GuestCount, increment: boolean) => {
+    if (increment) {
+      // Kiểm tra giới hạn khi tăng số lượng
+      const currentTotal = guestCount.adults + guestCount.children;
+
+      // Nếu đang tăng Adults hoặc Children và đã đạt giới hạn
+      if ((type === "adults" || type === "children") && currentTotal >= productDetails!.max_capacity) {
+        toast({
+          variant: "default",
+          description: (
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 text-red-600 mr-2 flex-shrink-0" />
+              <span>Sorry, this product has a maximum occupancy of {productDetails!.max_capacity}</span>
+            </div>
+          ),
+          className: "rounded-full bg-white border border-gray-200 shadow-md",
+        });
+        return; // Không tăng thêm
+      }
+    }
+
+    // Tiếp tục với logic tăng/giảm số lượng
     setGuestCount((prev) => ({
       ...prev,
       [type]: increment ? prev[type] + 1 : Math.max(0, prev[type] - 1),
-    }))
+    }));
   }
 
   const calculateTotal = () => {
@@ -335,14 +359,16 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
 
                 <Button
                   onClick={handleAddToCart}
-                  disabled={isSubmitting || isSoldOut || !date || !user}
+                  disabled={isSubmitting || isSoldOut || !date || !user || isOverCapacity}
                   className="w-full"
                 >
                   {isSubmitting
                     ? "Adding to Cart..."
                     : isSoldOut
                       ? "Sold Out"
-                      : "Add to Cart"
+                      : isOverCapacity
+                        ? "Exceeds Capacity"
+                        : "Add to Cart"
                   }
                 </Button>
               </div>
