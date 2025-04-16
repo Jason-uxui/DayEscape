@@ -389,7 +389,12 @@ export default function HotelPage() {
           </div>
         </div>
       </div>
-      <DiscoverMoreSection />
+      <DiscoverMoreSection
+        currentHotelId={hotel.id}
+        currentLatitude={hotel.latitude}
+        currentLongitude={hotel.longitude}
+        currentCity={hotel.display_address?.split(',')[0]?.trim()}
+      />
       <SiteFooter />
     </>
   )
