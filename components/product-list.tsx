@@ -92,6 +92,11 @@ export default function ProductList({ hotelId }: ProductListProps) {
     fetchAvailability()
   }, [products])
 
+  // Kiểm tra xem sản phẩm có bị Sold Out không
+  const isProductSoldOut = (productId: string) => {
+    return productAvailability[productId]?.toLowerCase().includes("sold out");
+  };
+
   if (loading) {
     return <div>Loading products...</div>
   }
@@ -113,16 +118,20 @@ export default function ProductList({ hotelId }: ProductListProps) {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-semibold text-[#333333]">{product.name}</h3>
+                {/* Hiển thị "in cart" nếu sản phẩm đã được thêm vào giỏ hàng */}
                 {productStatuses[product.id] ? (
                   <span className="rounded px-2 py-0.5 text-xs bg-green-100 text-green-600">
                     {productStatuses[product.id]}
                   </span>
                 ) : (
+                  /* Nếu không, hiển thị badge availability nếu có */
                   productAvailability[product.id] && (
                     <span className={`rounded px-2 py-0.5 text-xs ${productAvailability[product.id].toLowerCase().includes("sold out")
-                        ? "bg-red-100 text-red-600"
-                        : productAvailability[product.id].toLowerCase().includes("only")
-                          ? "bg-orange-100 text-orange-600"
+                      ? "bg-red-100 text-red-600"
+                      : productAvailability[product.id].toLowerCase().includes("only")
+                        ? "bg-orange-100 text-orange-600"
+                        : productAvailability[product.id].toLowerCase().includes("available")
+                          ? "bg-green-100 text-green-600"
                           : "bg-blue-100 text-blue-600"
                       }`}>
                       {productAvailability[product.id]}
@@ -142,6 +151,7 @@ export default function ProductList({ hotelId }: ProductListProps) {
                   setDialogOpen(true)
                 }}
                 className="bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full"
+                disabled={isProductSoldOut(product.id)}
               >
                 Select
               </Button>
@@ -150,7 +160,12 @@ export default function ProductList({ hotelId }: ProductListProps) {
         ))}
       </div>
 
-      <ProductDialog productId={selectedProductId || ""} open={dialogOpen} onOpenChange={setDialogOpen} />
+      <ProductDialog
+        productId={selectedProductId || ""}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        availabilityStatus={selectedProductId ? productAvailability[selectedProductId] : ""}
+      />
     </div>
   )
 }

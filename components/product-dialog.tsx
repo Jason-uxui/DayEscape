@@ -20,6 +20,7 @@ interface ProductDialogProps {
   productId: string
   open: boolean
   onOpenChange: (open: boolean) => void
+  availabilityStatus?: string
 }
 
 interface GuestCount {
@@ -44,7 +45,7 @@ interface ProductDetails {
   }
 }
 
-export function ProductDialog({ productId, open, onOpenChange }: ProductDialogProps) {
+export function ProductDialog({ productId, open, onOpenChange, availabilityStatus = "" }: ProductDialogProps) {
   const { toast } = useToast()
   const { addToCart } = useCart()
   const { user } = useAuth()
@@ -57,6 +58,9 @@ export function ProductDialog({ productId, open, onOpenChange }: ProductDialogPr
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [productDetails, setProductDetails] = useState<ProductDetails | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Kiểm tra xem sản phẩm có bị Sold Out không
+  const isSoldOut = availabilityStatus.toLowerCase().includes("sold out")
 
   useEffect(() => {
     async function fetchProductDetails() {
@@ -85,9 +89,11 @@ export function ProductDialog({ productId, open, onOpenChange }: ProductDialogPr
         return
       }
 
-      setProductDetails(data)
-      if (data && data.images && data.images.length > 0) {
-        setSelectedImage(data.images[0])
+      if (data) {
+        setProductDetails(data as unknown as ProductDetails)
+        if (data.images && data.images.length > 0) {
+          setSelectedImage(data.images[0])
+        }
       }
     }
 
@@ -109,6 +115,17 @@ export function ProductDialog({ productId, open, onOpenChange }: ProductDialogPr
   }
 
   const handleAddToCart = () => {
+    // Kiểm tra trạng thái Sold Out
+    if (isSoldOut) {
+      toast({
+        variant: "destructive",
+        title: "Product is sold out",
+        description: "This product is currently not available.",
+        className: "rounded-full",
+      })
+      return
+    }
+
     if (!user) {
       toast({
         variant: "destructive",
@@ -137,7 +154,7 @@ export function ProductDialog({ productId, open, onOpenChange }: ProductDialogPr
       })
       onOpenChange(false)
       toast({
-        variant: "success",
+        variant: "default",
         title: `${productDetails.name} added to cart`,
         description: "Your item has been added to the cart.",
         className: "rounded-full",
@@ -310,19 +327,23 @@ export function ProductDialog({ productId, open, onOpenChange }: ProductDialogPr
               </div>
 
               {/* Total */}
-              <div className="border-t pt-6">
+              <div className="mt-8 flex flex-col gap-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-semibold text-[#333333]">Total</span>
-                  <span className="text-2xl font-bold text-[#333333]">${calculateTotal()}.00</span>
+                  <div className="text-lg font-medium">Total</div>
+                  <div className="text-lg font-medium">${calculateTotal()}</div>
                 </div>
-                {!date && <p className="text-sm text-red-500 mt-2">Please select a date to enable booking.</p>}
+
                 <Button
                   onClick={handleAddToCart}
-                  disabled={isSubmitting || !date || guestCount.adults + guestCount.children === 0}
-                  className="mt-6 w-full bg-[#0f373d] hover:bg-[#0f373d]/90"
-                  size="lg"
+                  disabled={isSubmitting || isSoldOut || !date || !user}
+                  className="w-full"
                 >
-                  {isSubmitting ? "Processing..." : "Add to Cart"}
+                  {isSubmitting
+                    ? "Adding to Cart..."
+                    : isSoldOut
+                      ? "Sold Out"
+                      : "Add to Cart"
+                  }
                 </Button>
               </div>
             </div>
