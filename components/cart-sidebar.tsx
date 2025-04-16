@@ -64,29 +64,35 @@ export default function CartSidebar() {
 
         {/* Scrollable product list */}
         <div className="flex-grow overflow-y-auto mt-4 mb-4 max-h-[calc(100vh-250px)]">
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div key={item.id} className="flex items-start justify-between rounded-lg border p-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-[#333333]">{item.name}</span>
-                    <span className="text-sm text-[#4f4f4f]">
-                      - {item.options?.adults} adult, {item.options?.children} child, {item.options?.infants} infant
-                    </span>
-                  </div>
-                  <span className="text-sm text-[#4f4f4f]">(${item.price})</span>
-                  {item.options?.date && (
-                    <div className="text-sm text-[#4f4f4f] mt-1">
-                      Date: {format(new Date(item.options.date), "MMM d, yyyy")}
+          {items.length > 0 ? (
+            <div className="space-y-4">
+              {items.map((item) => (
+                <div key={item.id} className="flex items-start justify-between rounded-lg border p-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-[#333333]">{item.name}</span>
+                      <span className="text-sm text-[#4f4f4f]">
+                        - {item.options?.adults} adult, {item.options?.children} child, {item.options?.infants} infant
+                      </span>
                     </div>
-                  )}
+                    <span className="text-sm text-[#4f4f4f]">(${item.price})</span>
+                    {item.options?.date && (
+                      <div className="text-sm text-[#4f4f4f] mt-1">
+                        Date: {format(new Date(item.options.date), "MMM d, yyyy")}
+                      </div>
+                    )}
+                  </div>
+                  <button className="text-[#4f4f4f] hover:text-[#333333]" onClick={() => removeFromCart(item.id)}>
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <button className="text-[#4f4f4f] hover:text-[#333333]" onClick={() => removeFromCart(item.id)}>
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex item-center text-[#9ca3af] text-sm">
+              Please select a product to continue.
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -95,7 +101,11 @@ export default function CartSidebar() {
             <span className="font-medium text-[#333333]">Total</span>
             <span className="text-xl font-bold text-[#333333]">${total}</span>
           </div>
-          <Button className="mt-6 w-full bg-[#0f373d] hover:bg-[#0f373d]/90" onClick={handleReserve}>
+          <Button
+            className="mt-6 w-full bg-[#0f373d] hover:bg-[#0f373d]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleReserve}
+            disabled={items.length === 0}
+          >
             Reserve
           </Button>
         </div>
