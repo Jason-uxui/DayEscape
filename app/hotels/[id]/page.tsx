@@ -112,8 +112,13 @@ export default function HotelPage() {
         });
         toast.success("Shared successfully!");
       } catch (error) {
-        console.error("Error sharing:", error);
-        copyToClipboard(shareUrl);
+        // Don't show error for user cancellations
+        if (error instanceof Error &&
+          error.message !== "Abort due to cancellation of share." &&
+          error.message !== "Share canceled") {
+          console.error("Error sharing:", error);
+          copyToClipboard(shareUrl);
+        }
       }
     } else {
       copyToClipboard(shareUrl);
@@ -121,16 +126,59 @@ export default function HotelPage() {
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        setIsCopied(true);
-        toast.success("Link copied to clipboard!");
-        setTimeout(() => setIsCopied(false), 2000);
-      })
-      .catch((error) => {
-        console.error("Failed to copy:", error);
-        toast.error("Failed to copy link");
-      });
+    // Check if we're in a secure context (HTTPS or localhost)
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          setIsCopied(true);
+          toast.success("Link copied to clipboard!");
+          setTimeout(() => setIsCopied(false), 2000);
+        })
+        .catch((error) => {
+          // Don't show permission errors in console
+          if (!(error instanceof Error) ||
+            !error.message.includes("not allowed by the user agent") &&
+            !error.message.includes("denied permission")) {
+            console.error("Failed to copy:", error);
+          }
+
+          // Fallback to manual copy instruction
+          toast.info("Copy this link manually: " + text);
+        });
+    } else {
+      // Fallback for insecure contexts
+      try {
+        // Create a temporary input element
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+
+        // Make the textarea out of viewport
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+
+        // Focus and select the text
+        textArea.focus();
+        textArea.select();
+
+        // Execute the copy command
+        const successful = document.execCommand('copy');
+
+        // Clean up
+        document.body.removeChild(textArea);
+
+        if (successful) {
+          setIsCopied(true);
+          toast.success("Link copied to clipboard!");
+          setTimeout(() => setIsCopied(false), 2000);
+        } else {
+          toast.info("Copy this link manually: " + text);
+        }
+      } catch (err) {
+        toast.info("Copy this link manually: " + text);
+      }
+    }
   };
 
   if (error) {
