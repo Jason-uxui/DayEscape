@@ -308,22 +308,22 @@ export default function HotelPage() {
                     <h1 className="mt-2 text-3xl font-bold text-[#0f373d]">{hotel.name}</h1>
                   </div>
                   <div className="flex gap-4">
-                    <Button variant="outline" size="sm" onClick={handleShare}>
+                    <Button variant="outline" size="sm" onClick={handleShare} className="px-4">
                       {isCopied ? (
                         <>
-                          <Check className="mr-2 h-4 w-4" />
+                          <Check className="mr-1 h-4 w-4" />
                           Copied
                         </>
                       ) : (
                         <>
-                          <Share className="mr-2 h-4 w-4" />
+                          <Share className="mr-1 h-4 w-4" />
                           Share
                         </>
                       )}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleSaveToggle}>
+                    <Button variant="outline" size="sm" onClick={handleSaveToggle} className="px-4">
                       <Heart
-                        className={`mr-2 h-4 w-4 ${isSaved ? "fill-[#e11d48]" : ""}`}
+                        className={`mr-1 h-4 w-4 ${isSaved ? "fill-[#e11d48]" : ""}`}
                         color={isSaved ? "#e11d48" : "currentColor"}
                       />
                       {isSaved ? "Saved" : "Save"}
