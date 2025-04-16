@@ -26,27 +26,31 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#F1E9DF] bg-[#FDFAF5]">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <button
-          className="flex items-center justify-center rounded-md p-2 hover:bg-gray-100"
-          onClick={() => setIsNavOpen(!isNavOpen)}
-          aria-label="Open navigation menu"
-          aria-expanded={isNavOpen}
-        >
-          <Menu className="h-6 w-6" />
-        </button>
+      <div className="container flex h-16 items-center px-4">
+        <div className="flex-1 flex justify-start">
+          <button
+            className="flex items-center justify-center rounded-md p-2 hover:bg-gray-100"
+            onClick={() => setIsNavOpen(!isNavOpen)}
+            aria-label="Open navigation menu"
+            aria-expanded={isNavOpen}
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
 
-        <Link href="/" className="flex items-center space-x-2">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
-            alt="DayEscape"
-            width={130}
-            height={32}
-            className="h-8 w-auto"
-          />
-        </Link>
+        <div className="flex-1 flex justify-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
+              alt="DayEscape"
+              width={130}
+              height={32}
+              className="h-8 w-auto"
+            />
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex-1 flex justify-end items-center gap-4">
           {user ? (
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
               Sign out
