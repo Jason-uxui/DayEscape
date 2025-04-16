@@ -24,6 +24,7 @@ export default function ProductList({ hotelId }: ProductListProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const { isInCart, cartVersion } = useCart()
   const [productStatuses, setProductStatuses] = useState<{ [key: string]: string }>({})
+  const [productAvailability, setProductAvailability] = useState<{ [key: string]: string }>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -62,6 +63,35 @@ export default function ProductList({ hotelId }: ProductListProps) {
     setProductStatuses(newStatuses)
   }, [isInCart, cartVersion, products])
 
+  useEffect(() => {
+    async function fetchAvailability() {
+      try {
+        if (products.length === 0) return
+
+        const { data, error } = await supabase
+          .from("availability")
+          .select("product_id, status")
+          .in("product_id", products.map(p => p.id))
+
+        if (error) throw error
+
+        // Tạo object mapping từ product_id đến status
+        const availabilityMap: { [key: string]: string } = {}
+        data.forEach(item => {
+          if (item.status) {
+            availabilityMap[item.product_id] = item.status
+          }
+        })
+
+        setProductAvailability(availabilityMap)
+      } catch (error: any) {
+        console.error("Error fetching availability:", error)
+      }
+    }
+
+    fetchAvailability()
+  }, [products])
+
   if (loading) {
     return <div>Loading products...</div>
   }
@@ -83,10 +113,21 @@ export default function ProductList({ hotelId }: ProductListProps) {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-semibold text-[#333333]">{product.name}</h3>
-                {productStatuses[product.id] && (
+                {productStatuses[product.id] ? (
                   <span className="rounded px-2 py-0.5 text-xs bg-green-100 text-green-600">
                     {productStatuses[product.id]}
                   </span>
+                ) : (
+                  productAvailability[product.id] && (
+                    <span className={`rounded px-2 py-0.5 text-xs ${productAvailability[product.id].toLowerCase().includes("sold out")
+                        ? "bg-red-100 text-red-600"
+                        : productAvailability[product.id].toLowerCase().includes("only")
+                          ? "bg-orange-100 text-orange-600"
+                          : "bg-blue-100 text-blue-600"
+                      }`}>
+                      {productAvailability[product.id]}
+                    </span>
+                  )
                 )}
               </div>
             </div>
