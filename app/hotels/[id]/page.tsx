@@ -188,20 +188,26 @@ export default function HotelPage() {
     if (isSaved) {
       setIsSaved(false);
       toast.success(
-        <div className="flex flex-col">
-          <span>Removed from your Favourites</span>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center">
+            <Heart className="h-4 w-4 mr-2" color="#e11d48" />
+            <span>Removed from your Favourites</span>
+          </div>
         </div>
       );
     } else {
       setIsSaved(true);
       toast.success(
-        <div className="flex flex-col space-y-2">
-          <span>Saved to your Favourites</span>
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center">
+            <Heart className="h-4 w-4 mr-2 fill-[#e11d48]" color="#e11d48" />
+            <span>Saved to your Favourites</span>
+          </div>
           <Link
             href="/users/favorites"
-            className="text-sm bg-[#0c363e] text-white py-1 px-3 rounded-md inline-block text-center hover:bg-[#0c363e]/90"
+            className="text-sm text-[#0c363e] underline hover:text-[#0c363e]/80 font-medium ml-2"
           >
-            View Favourites
+            View
           </Link>
         </div>
       );

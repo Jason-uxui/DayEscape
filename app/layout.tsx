@@ -39,7 +39,7 @@ export default function RootLayout({
           <CartProvider>{children}</CartProvider>
         </AuthProvider>
         <Toaster />
-        <SonnerToaster position="top-right" />
+        <SonnerToaster position="bottom-center" />
       </body>
     </html>
   )
