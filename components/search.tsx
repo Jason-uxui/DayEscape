@@ -52,15 +52,15 @@ export function Search() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const today = startOfDay(new Date())
-  
-  // Form state
-  const [date, setDate] = useState<Date | undefined>(undefined)
+
+  // Form state with default date as today
+  const [date, setDate] = useState<Date>(today)
   const [location, setLocation] = useState<string>("")
   const [suggestions, setSuggestions] = useState<CombinedSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
   const [isSearching, setIsSearching] = useState<boolean>(false)
-  const [errors, setErrors] = useState<{location?: string; date?: string}>({})
-  
+  const [errors, setErrors] = useState<{ location?: string; date?: string }>({})
+
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -69,11 +69,11 @@ export function Search() {
     if (pathname === '/hotels') {
       const locationParam = searchParams.get('location')
       const dateParam = searchParams.get('date')
-      
+
       if (locationParam) {
         setLocation(decodeURIComponent(locationParam))
       }
-      
+
       if (dateParam) {
         const parsedDate = parse(dateParam, 'yyyy-MM-dd', new Date())
         if (isValid(parsedDate)) {
@@ -87,17 +87,17 @@ export function Search() {
   const generateCombinedSuggestions = (searchTerm: string = "") => {
     const combinedResults: CombinedSuggestion[] = [];
     const searchTermLower = searchTerm.toLowerCase();
-    
+
     // If input is numeric, prioritize postcode search
     if (/^\d+$/.test(searchTerm.trim())) {
       // Add matching postcodes
       const matchingPostcodes = findMatchingPostcodes(searchTerm.trim());
-      
+
       matchingPostcodes.forEach(postcodeData => {
         const locationData = LOCATIONS_WITH_POSTCODES.find(
           item => item.location === postcodeData.location
         );
-        
+
         if (locationData) {
           combinedResults.push({
             display: `${postcodeData.location} (${postcodeData.postcode})`,
@@ -108,11 +108,11 @@ export function Search() {
         }
       });
     }
-    
+
     // Add matching locations
     LOCATIONS_WITH_POSTCODES.forEach(locationData => {
       const locationLower = locationData.location.toLowerCase();
-      
+
       if (searchTerm === "" || locationLower.includes(searchTermLower)) {
         // Add main location with primary postcode
         combinedResults.push({
@@ -123,12 +123,12 @@ export function Search() {
         });
       }
     });
-    
+
     // Remove duplicates (prefer postcode matches over location matches)
-    const uniqueResults = combinedResults.filter((suggestion, index, self) => 
+    const uniqueResults = combinedResults.filter((suggestion, index, self) =>
       index === self.findIndex(s => s.value === suggestion.value)
     );
-    
+
     return uniqueResults;
   };
 
@@ -151,8 +151,8 @@ export function Search() {
   // Handle click outside to close suggestions list
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) && 
-          inputRef.current && !inputRef.current.contains(event.target as Node)) {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
+        inputRef.current && !inputRef.current.contains(event.target as Node)) {
         setShowSuggestions(false)
       }
     }
@@ -167,7 +167,7 @@ export function Search() {
   const handleSelectSuggestion = (suggestion: CombinedSuggestion) => {
     setLocation(suggestion.value)
     setShowSuggestions(false)
-    setErrors(prev => ({...prev, location: undefined}))
+    setErrors(prev => ({ ...prev, location: undefined }))
   }
 
   // Handle focus on input
@@ -179,28 +179,28 @@ export function Search() {
     }
   }
 
-  // Handle date selection
+  // Handle date selection - Date can be undefined from the Calendar component
   const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate)
+    // If a date is selected, use it; otherwise keep using the current date
     if (selectedDate) {
-      setErrors(prev => ({...prev, date: undefined}))
+      setDate(selectedDate)
+      setErrors(prev => ({ ...prev, date: undefined }))
     }
   }
 
   // Validate form before submit
   const validateForm = (): boolean => {
-    const newErrors: {location?: string; date?: string} = {}
-    
+    const newErrors: { location?: string; date?: string } = {}
+
     if (!location || location.trim() === "") {
       newErrors.location = "Please enter a location"
     }
-    
-    if (!date) {
-      newErrors.date = "Please select a date"
-    } else if (isBefore(date, today)) {
+
+    // Only check if date is in the past since we now have a default date
+    if (isBefore(date, today)) {
       newErrors.date = "Cannot select a date in the past"
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -208,9 +208,9 @@ export function Search() {
   // Handle search button click
   const handleSearch = () => {
     if (!validateForm()) return
-    
+
     setIsSearching(true)
-    
+
     // Simulate search process
     setTimeout(() => {
       // Navigate to search results page with query params
@@ -240,13 +240,13 @@ export function Search() {
           {errors.location && (
             <p className="text-red-500 text-xs mt-1 ml-9">{errors.location}</p>
           )}
-          
+
           {/* Combined suggestions list */}
           {showSuggestions && suggestions.length > 0 && (
-            <div 
+            <div
               ref={suggestionsRef}
               className="absolute z-50 mt-1 w-full bg-white rounded-lg shadow-lg overflow-y-auto"
-              style={{ 
+              style={{
                 position: 'absolute',
                 top: '100%',
                 left: 0,
@@ -311,7 +311,7 @@ export function Search() {
           )}
         </div>
 
-        <Button 
+        <Button
           className="w-full sm:w-auto bg-[#0c363e] px-8 text-white hover:bg-[#0c363e]/90 rounded-full transition-all duration-300 hover:shadow-lg disabled:opacity-70"
           onClick={handleSearch}
           disabled={isSearching}
