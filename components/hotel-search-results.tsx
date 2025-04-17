@@ -253,21 +253,15 @@ export function HotelSearchResults() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
-      <div className="w-full lg:w-1/2 bg-white overflow-y-auto p-4">
-        <div className="lg:hidden mb-4 p-2 bg-[#f6ddb8]/30 rounded-lg text-sm text-[#4f4f4f] text-center">
-          Scroll down to view map after browsing hotels
-        </div>
+      <div className="w-full lg:w-1/2 bg-white p-4 lg:overflow-y-auto">
         <HotelList
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
           selectedHotel={selectedHotel}
           onSelectHotel={setSelectedHotel}
         />
       </div>
-      <div className="w-full lg:h-screen lg:sticky lg:top-0">
-        <div className="lg:hidden py-3 px-4 bg-[#fdfaf5] sticky top-0 z-10 font-medium text-[#0c363e]">
-          Map View
-        </div>
-        <div className="w-full h-[400px] lg:h-screen">
+      <div className="w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0">
+        <div className="w-full h-[350px] lg:h-screen">
           <MapView
             hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
             selectedHotel={selectedHotel}
