@@ -27,10 +27,9 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#F1E9DF] bg-[#FDFAF5]">
       <div className="container flex h-16 items-center px-4">
-        {/* Left section - Menu and mobile logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex-1 flex justify-start items-center">
           <button
-            className="flex items-center justify-center rounded-md p-2 hover:bg-gray-100"
+            className="flex items-center justify-center rounded-md p-2 hover:bg-gray-100 md:mr-0 mr-2"
             onClick={() => setIsNavOpen(!isNavOpen)}
             aria-label="Open navigation menu"
             aria-expanded={isNavOpen}
@@ -38,20 +37,20 @@ export function SiteHeader() {
             <Menu className="h-6 w-6" />
           </button>
 
-          {/* Mobile Logo - only visible on mobile */}
-          <Link href="/" className="md:hidden">
+          {/* Mobile Logo - Hiển thị cạnh menu bar trên mobile */}
+          <Link href="/" className="md:hidden block">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
               alt="DayEscape"
-              width={80}
-              height={20}
-              className="h-6 w-auto"
+              width={30}
+              height={30}
+              className="h-8 w-auto object-contain"
             />
           </Link>
         </div>
 
-        {/* Center Logo - hidden on mobile, visible on md and up */}
-        <div className="hidden md:flex flex-1 justify-center">
+        {/* Desktop Logo - Ẩn trên mobile */}
+        <div className="flex-1 hidden md:flex justify-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
@@ -63,7 +62,6 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* Right section with auth buttons and cart */}
         <div className="flex-1 flex justify-end items-center gap-4">
           {user ? (
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
