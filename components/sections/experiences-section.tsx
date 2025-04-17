@@ -1,14 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bookmark, MapPin, ArrowRight } from "lucide-react"
+import { Bookmark, MapPin, ArrowRight, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
 import { ComingSoonCard } from "@/components/coming-soon-card"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 
 interface Hotel {
   id: string
@@ -112,8 +112,10 @@ export function ExperiencesSection() {
       : hotels.filter((hotel) => hotel.city === selectedCity)
     : []
 
-  const handleHotelClick = (hotelId: string) => {
-    router.push(`/hotels/${hotelId}`);
+  const handleHotelClick = (hotelId: string, hotelName: string) => {
+    // Tạo slug từ tên khách sạn bằng cách chuyển đổi thành chữ thường và thay thế khoảng trắng bằng dấu gạch ngang
+    const slug = hotelName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+    router.push(`/hotels/${slug}?id=${hotelId}`);
   };
 
   if (loading) {
@@ -171,8 +173,9 @@ export function ExperiencesSection() {
           <Button
             variant="secondary"
             className="rounded-full bg-[#F6DDB8] text-[#0F373D] hover:bg-[#F6DDB8]/90 border-none shadow-sm"
+            onClick={() => router.push('/hotels')}
           >
-            Search more <ArrowRight className="ml-2 h-4 w-4" />
+            Search more <ChevronRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
 
@@ -202,8 +205,8 @@ export function ExperiencesSection() {
                 {filteredHotels.map((hotel) => (
                   <div
                     key={hotel.id}
-                    className="group overflow-hidden rounded-xl bg-white cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleHotelClick(hotel.id)}
+                    className="group overflow-hidden rounded-xl bg-white cursor-pointer"
+                    onClick={() => handleHotelClick(hotel.id, hotel.name)}
                   >
                     <div className="relative">
                       <div className="absolute left-4 top-4 z-10 rounded bg-[#b91c1c] px-2 py-1 text-sm font-medium text-white">
@@ -213,8 +216,8 @@ export function ExperiencesSection() {
                         className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 transition-colors hover:bg-white"
                         aria-label="Add to favorites"
                         onClick={(e) => {
-                          e.stopPropagation(); // Ngăn chặn sự kiện click lan tỏa lên parent
-                          // Xử lý logic thêm vào yêu thích
+                          e.stopPropagation(); // Ngăn click truyền lên card parent
+                          // TODO: Thêm logic save to favorites
                         }}
                       >
                         <Bookmark className="h-5 w-5 text-[#0c363e]" />

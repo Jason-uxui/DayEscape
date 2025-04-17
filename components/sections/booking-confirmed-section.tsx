@@ -72,9 +72,9 @@ export function BookingConfirmedSection() {
       <div className="space-y-4">
         <p className="text-[#0f373d] font-medium">What to do next:</p>
         <Button
-          variant="secondary"
+          variant="default"
           size="lg"
-          className="w-full"
+          className="w-full bg-[#F6DDB8] hover:bg-[#F6DDB8]/90 text-[#0F373D] font-medium"
           onClick={() => router.push("/users/my-bookings")}
         >
           Review My Booking <ArrowRight className="w-4 h-4 ml-1" />
