@@ -27,7 +27,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#F1E9DF] bg-[#FDFAF5]">
       <div className="container flex h-16 items-center px-4">
-        <div className="flex-1 flex justify-start">
+        {/* Left section - Menu and mobile logo */}
+        <div className="flex items-center gap-2">
           <button
             className="flex items-center justify-center rounded-md p-2 hover:bg-gray-100"
             onClick={() => setIsNavOpen(!isNavOpen)}
@@ -36,9 +37,21 @@ export function SiteHeader() {
           >
             <Menu className="h-6 w-6" />
           </button>
+
+          {/* Mobile Logo - only visible on mobile */}
+          <Link href="/" className="md:hidden">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
+              alt="DayEscape"
+              width={80}
+              height={20}
+              className="h-6 w-auto"
+            />
+          </Link>
         </div>
 
-        <div className="flex-1 flex justify-center">
+        {/* Center Logo - hidden on mobile, visible on md and up */}
+        <div className="hidden md:flex flex-1 justify-center">
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-bKGMGzLORzYLaKr6UcGZqfRhgoIgNL.png"
@@ -50,6 +63,7 @@ export function SiteHeader() {
           </Link>
         </div>
 
+        {/* Right section with auth buttons and cart */}
         <div className="flex-1 flex justify-end items-center gap-4">
           {user ? (
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
@@ -57,7 +71,7 @@ export function SiteHeader() {
             </Button>
           ) : (
             <>
-              <Link href="/signup">
+              <Link href="/signup" className="hidden sm:block">
                 <Button variant="default" className="bg-[#0c363e] text-white hover:bg-[#0c363e]/90 rounded-full">
                   Sign up
                 </Button>
