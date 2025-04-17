@@ -19,6 +19,8 @@ import { supabase } from "@/lib/supabase"
 import { useSearchParams, useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import Link from "next/link"
+import { HotelImageCarousel } from "@/components/hotel-image-carousel"
+import { useToast } from "@/components/ui/use-toast"
 
 async function getHotel(idOrName: string) {
   let query = supabase.from("hotels").select(`
@@ -64,6 +66,7 @@ export default function HotelPage() {
   const params = useParams();
   const hotelId = params.id as string;
   const router = useRouter();
+  const { toast } = useToast();
 
   const [hotel, setHotel] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
@@ -113,7 +116,11 @@ export default function HotelPage() {
           text: shareText,
           url: shareUrl,
         });
-        toast.success("Shared successfully!");
+        toast({
+          variant: "default",
+          title: "Shared successfully!",
+          className: "rounded-full",
+        });
       } catch (error) {
         // Don't show error for user cancellations
         if (error instanceof Error &&
@@ -134,7 +141,11 @@ export default function HotelPage() {
       navigator.clipboard.writeText(text)
         .then(() => {
           setIsCopied(true);
-          toast.success("Link copied to clipboard!");
+          toast({
+            variant: "default",
+            title: "Link copied to clipboard!",
+            className: "rounded-full",
+          });
           setTimeout(() => setIsCopied(false), 2000);
         })
         .catch((error) => {
@@ -146,7 +157,11 @@ export default function HotelPage() {
           }
 
           // Fallback to manual copy instruction
-          toast.info("Copy this link manually: " + text);
+          toast({
+            variant: "default",
+            title: "Copy this link manually: " + text,
+            className: "rounded-full",
+          });
         });
     } else {
       // Fallback for insecure contexts
@@ -173,13 +188,25 @@ export default function HotelPage() {
 
         if (successful) {
           setIsCopied(true);
-          toast.success("Link copied to clipboard!");
+          toast({
+            variant: "default",
+            title: "Link copied to clipboard!",
+            className: "rounded-full",
+          });
           setTimeout(() => setIsCopied(false), 2000);
         } else {
-          toast.info("Copy this link manually: " + text);
+          toast({
+            variant: "default",
+            title: "Copy this link manually: " + text,
+            className: "rounded-full",
+          });
         }
       } catch (err) {
-        toast.info("Copy this link manually: " + text);
+        toast({
+          variant: "default",
+          title: "Copy this link manually: " + text,
+          className: "rounded-full",
+        });
       }
     }
   };
@@ -187,30 +214,36 @@ export default function HotelPage() {
   const handleSaveToggle = () => {
     if (isSaved) {
       setIsSaved(false);
-      toast.success(
-        <div className="flex items-center justify-between w-full">
+      toast({
+        variant: "default",
+        description: (
           <div className="flex items-center">
             <Heart className="h-4 w-4 mr-2" color="#e11d48" />
             <span>Removed from your Favourites</span>
           </div>
-        </div>
-      );
+        ),
+        className: "rounded-full",
+      });
     } else {
       setIsSaved(true);
-      toast.success(
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center">
-            <Heart className="h-4 w-4 mr-2 fill-[#e11d48]" color="#e11d48" />
-            <span>Saved to your Favourites</span>
+      toast({
+        variant: "default",
+        description: (
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center">
+              <Heart className="h-4 w-4 mr-2 fill-[#e11d48]" color="#e11d48" />
+              <span>The hotel has been added to your favourites.</span>
+            </div>
+            <Link
+              href="/users/favorites"
+              className="text-sm text-[#0c363e] underline hover:text-[#0c363e]/80 font-medium ml-2"
+            >
+              View
+            </Link>
           </div>
-          <Link
-            href="/users/favorites"
-            className="text-sm text-[#0c363e] underline hover:text-[#0c363e]/80 font-medium ml-2"
-          >
-            View
-          </Link>
-        </div>
-      );
+        ),
+        className: "rounded-full",
+      });
     }
   };
 
@@ -260,8 +293,14 @@ export default function HotelPage() {
       <SiteHeader />
       <div className="bg-[#fdfaf5]">
         <div className="container max-w-6xl mx-auto px-4 py-8 bg-[#fdfaf5]">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
-            <div className="md:col-span-2 md:row-span-2 h-[400px] md:h-[500px]">
+          {/* Mobile Image Carousel */}
+          <div className="md:hidden mb-4">
+            <HotelImageCarousel images={images} hotelName={hotel.name} />
+          </div>
+
+          {/* Desktop Grid Layout */}
+          <div className="hidden md:grid grid-cols-4 gap-4 md:gap-6">
+            <div className="col-span-2 row-span-2 h-[500px]">
               <Image
                 src={mainImage || "/placeholder.svg"}
                 alt={`Main view of ${hotel.name}`}
@@ -271,7 +310,7 @@ export default function HotelPage() {
               />
             </div>
             {smallImages.map((src: string, index: number) => (
-              <div key={index} className="hidden md:block h-[240px]">
+              <div key={`small-image-${index}-${src.substring(0, 20)}`} className="h-[240px]">
                 <Image
                   src={src || "/placeholder.svg"}
                   alt={`${hotel.name} view ${index + 2}`}
@@ -282,7 +321,7 @@ export default function HotelPage() {
               </div>
             ))}
             {[...Array(Math.max(0, 4 - smallImages.length))].map((_, index) => (
-              <div key={`placeholder-${index}`} className="hidden md:block h-[240px]">
+              <div key={`placeholder-image-${index}`} className="h-[240px]">
                 <Image
                   src="/placeholder.svg?height=300&width=400"
                   alt={`Placeholder for ${hotel.name}`}
@@ -297,7 +336,7 @@ export default function HotelPage() {
           <div className="flex flex-col lg:flex-row gap-8 mt-8">
             <div className="flex-1 p-8 bg-white border rounded-md">
               <header className="mb-8">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4 sm:gap-0">
                   <div>
                     <div className="flex items-center gap-2 text-sm text-[#4f4f4f]">
                       <span>{hotel.display_address}</span>
