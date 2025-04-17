@@ -41,13 +41,13 @@ export function HotelSearchResults() {
   const searchParams = useSearchParams()
   const locationParam = searchParams.get('location')
   const dateParam = searchParams.get('date')
-  
+
   const [hotels, setHotels] = useState<Hotel[]>([])
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([])
   const [selectedHotel, setSelectedHotel] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [searchInfo, setSearchInfo] = useState<{location: string | null; date: Date | null}>({
+  const [searchInfo, setSearchInfo] = useState<{ location: string | null; date: Date | null }>({
     location: locationParam,
     date: dateParam ? parse(dateParam, 'yyyy-MM-dd', new Date()) : null
   })
@@ -59,34 +59,34 @@ export function HotelSearchResults() {
   // Filter hotels based on search parameters
   useEffect(() => {
     if (hotels.length === 0) return
-    
+
     let filtered = [...hotels]
-    
+
     // Filter by location if provided
     if (searchInfo.location) {
       const locationLower = searchInfo.location.toLowerCase()
-      
+
       // Check if location is Brisbane
       const isBrisbaneSearch = locationLower.includes('brisbane')
       setIsLocationOutsideBrisbane(!isBrisbaneSearch)
-      
+
       // If not Brisbane, return empty results
       if (!isBrisbaneSearch) {
         setFilteredHotels([])
         return
       }
-      
-      filtered = filtered.filter(hotel => 
-        hotel.city.toLowerCase().includes(locationLower) || 
+
+      filtered = filtered.filter(hotel =>
+        hotel.city.toLowerCase().includes(locationLower) ||
         hotel.country.toLowerCase().includes(locationLower) ||
         hotel.full_address.toLowerCase().includes(locationLower) ||
         hotel.display_address.toLowerCase().includes(locationLower)
       )
     }
-    
+
     // Could add date filtering logic here if needed
     // Currently we just store the date for display purposes
-    
+
     setFilteredHotels(filtered)
   }, [hotels, searchInfo])
 
@@ -95,14 +95,14 @@ export function HotelSearchResults() {
     const newLocation = searchParams.get('location')
     const newDateStr = searchParams.get('date')
     let newDate: Date | null = null
-    
+
     if (newDateStr) {
       const parsedDate = parse(newDateStr, 'yyyy-MM-dd', new Date())
       if (isValid(parsedDate)) {
         newDate = parsedDate
       }
     }
-    
+
     setSearchInfo({
       location: newLocation,
       date: newDate
@@ -183,12 +183,12 @@ export function HotelSearchResults() {
               <p className="text-[#4f4f4f]">
                 We'll notify you when new experiences are added to {searchInfo.location}.
               </p>
-              
+
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-sm text-[#4f4f4f] mb-4">
                   Want to try our available locations?
                 </p>
-                <Button 
+                <Button
                   className="w-full bg-[#f6ddb8] text-[#0c363e] hover:bg-[#f6ddb8]/90"
                   onClick={() => router.push('/hotels?location=Brisbane&date=' + (dateParam || ''))}
                 >
@@ -204,11 +204,11 @@ export function HotelSearchResults() {
               <p className="text-[#4f4f4f] mb-6">
                 We're currently expanding. Leave your email to be the first to know when new experiences are added to {searchInfo.location}.
               </p>
-              
+
               <form onSubmit={(e) => {
                 e.preventDefault();
                 setIsSubmitting(true);
-                
+
                 // Simulating an API call
                 setTimeout(() => {
                   setIsSuccess(true);
@@ -232,12 +232,12 @@ export function HotelSearchResults() {
                   {isSubmitting ? "Submitting..." : "Notify Me"}
                 </Button>
               </form>
-              
+
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-sm text-[#4f4f4f] mb-4">
                   Want to try our available locations?
                 </p>
-                <Button 
+                <Button
                   className="w-full bg-[#f6ddb8] text-[#0c363e] hover:bg-[#f6ddb8]/90"
                   onClick={() => router.push('/hotels?location=Brisbane&date=' + (dateParam || ''))}
                 >
@@ -254,18 +254,26 @@ export function HotelSearchResults() {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
       <div className="w-full lg:w-1/2 bg-white overflow-y-auto p-4">
-        <HotelList 
-          hotels={filteredHotels.length > 0 ? filteredHotels : hotels} 
-          selectedHotel={selectedHotel} 
-          onSelectHotel={setSelectedHotel} 
+        <div className="lg:hidden mb-4 p-2 bg-[#f6ddb8]/30 rounded-lg text-sm text-[#4f4f4f] text-center">
+          Scroll down to view map after browsing hotels
+        </div>
+        <HotelList
+          hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
+          selectedHotel={selectedHotel}
+          onSelectHotel={setSelectedHotel}
         />
       </div>
-      <div className="w-full lg:w-1/2 h-[500px] lg:h-screen sticky top-0">
-        <MapView 
-          hotels={filteredHotels.length > 0 ? filteredHotels : hotels} 
-          selectedHotel={selectedHotel} 
-          onSelectHotel={setSelectedHotel} 
-        />
+      <div className="w-full lg:h-screen lg:sticky lg:top-0">
+        <div className="lg:hidden py-3 px-4 bg-[#fdfaf5] sticky top-0 z-10 font-medium text-[#0c363e]">
+          Map View
+        </div>
+        <div className="w-full h-[400px] lg:h-screen">
+          <MapView
+            hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
+            selectedHotel={selectedHotel}
+            onSelectHotel={setSelectedHotel}
+          />
+        </div>
       </div>
     </div>
   )
