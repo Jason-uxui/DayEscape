@@ -29,39 +29,42 @@ export function SiteNavigation({ isOpen, onClose }: SiteNavigationProps) {
   if (!isOpen) return null
 
   return (
-    <nav ref={navRef} className="absolute left-0 top-16 z-50 w-full border-b bg-white px-4 py-6 md:px-6 md:py-12">
+    <nav
+      ref={navRef}
+      className="absolute left-0 top-16 z-50 w-full border-b bg-white px-4 py-4 md:px-6 md:py-8 overflow-y-auto max-h-[calc(100vh-4rem)]"
+    >
       <div className="container mx-auto">
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-3">
           <div className="md:col-span-3 lg:col-span-1">
-            <h2 className="text-2xl font-bold leading-tight text-[#0c363e] md:text-3xl">
+            <h2 className="text-xl font-bold leading-tight text-[#0c363e] md:text-3xl">
               Access world-class hotel experiences without checking in.
             </h2>
           </div>
 
-          <div className="space-y-6 md:space-y-4">
-            <Link href="/about" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+          <div className="space-y-3 md:space-y-4">
+            <Link href="/about" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               About DayEscape
             </Link>
-            <Link href="/hotels" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+            <Link href="/hotels" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               Explore Hotels
             </Link>
-            <Link href="/favorites" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+            <Link href="/favorites" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               My Favorites
             </Link>
-            <Link href="/users/my-bookings" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+            <Link href="/users/my-bookings" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               Bookings
             </Link>
-            <Link href="/partners" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+            <Link href="/partners" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               Become Partner
             </Link>
-            <Link href="/contact" className="block text-lg text-[#0c363e] hover:text-[#0c363e]/80">
+            <Link href="/contact" className="block text-base md:text-lg text-[#0c363e] hover:text-[#0c363e]/80">
               Contact
             </Link>
           </div>
 
-          <div className="space-y-6 md:space-y-4">
-            <h3 className="text-lg font-semibold text-[#0c363e]">Contact</h3>
-            <div className="space-y-2 text-[#4f4f4f]">
+          <div className="space-y-3 md:space-y-4">
+            <h3 className="text-base md:text-lg font-semibold text-[#0c363e]">Contact</h3>
+            <div className="space-y-1 md:space-y-2 text-[#4f4f4f] text-sm md:text-base">
               <p>
                 <span className="font-medium">T</span>: +62 39399 44551
               </p>
@@ -72,14 +75,14 @@ export function SiteNavigation({ isOpen, onClose }: SiteNavigationProps) {
                 <span className="font-medium">Reception</span>: Whatsapp
               </p>
             </div>
-            <div className="flex gap-4 pt-4">
+            <div className="flex gap-4 pt-2 md:pt-4">
               <Link href="#" className="text-[#4b5563] hover:text-[#0c363e]">
                 <Image
                   src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Guest_Website___Convert_to_Dev-fYKfonpOl70I8XgfmgcMmPU3DGLcbt.png"
                   alt="Facebook"
                   width={24}
                   height={24}
-                  className="h-6 w-6"
+                  className="h-5 w-5 md:h-6 md:w-6"
                 />
               </Link>
               <Link href="#" className="text-[#4b5563] hover:text-[#0c363e]">
@@ -88,7 +91,7 @@ export function SiteNavigation({ isOpen, onClose }: SiteNavigationProps) {
                   alt="Instagram"
                   width={24}
                   height={24}
-                  className="h-6 w-6"
+                  className="h-5 w-5 md:h-6 md:w-6"
                 />
               </Link>
               <Link href="#" className="text-[#4b5563] hover:text-[#0c363e]">
@@ -97,7 +100,7 @@ export function SiteNavigation({ isOpen, onClose }: SiteNavigationProps) {
                   alt="Play"
                   width={24}
                   height={24}
-                  className="h-6 w-6"
+                  className="h-5 w-5 md:h-6 md:w-6"
                 />
               </Link>
             </div>
