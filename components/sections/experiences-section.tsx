@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { supabase } from "@/lib/supabase"
 import Image from "next/image"
 import { ComingSoonCard } from "@/components/coming-soon-card"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface Hotel {
   id: string
@@ -28,6 +30,7 @@ export function ExperiencesSection() {
   const [selectedCity, setSelectedCity] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchData() {
@@ -109,6 +112,10 @@ export function ExperiencesSection() {
       : hotels.filter((hotel) => hotel.city === selectedCity)
     : []
 
+  const handleHotelClick = (hotelId: string) => {
+    router.push(`/hotels/${hotelId}`);
+  };
+
   if (loading) {
     return (
       <section className="py-10 bg-[#FDFAF5]">
@@ -124,8 +131,8 @@ export function ExperiencesSection() {
       <section className="py-10 bg-[#FDFAF5]">
         <div className="container mx-auto px-4 text-center py-20">
           <div className="text-red-500">{error}</div>
-          <Button 
-            onClick={() => window.location.reload()} 
+          <Button
+            onClick={() => window.location.reload()}
             className="mt-4"
           >
             Thử lại
@@ -193,7 +200,11 @@ export function ExperiencesSection() {
             {filteredHotels.length > 0 ? (
               <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {filteredHotels.map((hotel) => (
-                  <div key={hotel.id} className="group overflow-hidden rounded-xl bg-white">
+                  <div
+                    key={hotel.id}
+                    className="group overflow-hidden rounded-xl bg-white cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleHotelClick(hotel.id)}
+                  >
                     <div className="relative">
                       <div className="absolute left-4 top-4 z-10 rounded bg-[#b91c1c] px-2 py-1 text-sm font-medium text-white">
                         -10% today
@@ -201,6 +212,10 @@ export function ExperiencesSection() {
                       <button
                         className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 transition-colors hover:bg-white"
                         aria-label="Add to favorites"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Ngăn chặn sự kiện click lan tỏa lên parent
+                          // Xử lý logic thêm vào yêu thích
+                        }}
                       >
                         <Bookmark className="h-5 w-5 text-[#0c363e]" />
                       </button>
