@@ -275,7 +275,7 @@ export function HotelSearchResults() {
       </div>
 
       {/* List View Content */}
-      <div className={`w-full lg:w-1/2 bg-white p-4 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
+      <div className={`w-full lg:w-1/2 bg-white p-0 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
         <HotelList
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
           selectedHotel={selectedHotel}
