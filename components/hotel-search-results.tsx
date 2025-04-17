@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { format, parse, isValid } from "date-fns"
 import { ComingSoonCard } from "./coming-soon-card"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, CheckCircle } from "lucide-react"
+import { ArrowLeft, CheckCircle, Map, List } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
 interface Product {
@@ -55,6 +55,7 @@ export function HotelSearchResults() {
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [activeView, setActiveView] = useState<'list' | 'map'>('list') // Default to list view on mobile
 
   // Filter hotels based on search parameters
   useEffect(() => {
@@ -253,15 +254,38 @@ export function HotelSearchResults() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
-      <div className="w-full lg:w-1/2 bg-white p-4 lg:overflow-y-auto">
+      {/* Mobile View Toggle */}
+      <div className="sticky top-0 z-20 flex lg:hidden bg-[#fdfaf5] p-3">
+        <div className="w-full flex rounded-lg overflow-hidden bg-black/[0.03]">
+          <button
+            className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 rounded-lg ${activeView === 'list' ? 'bg-white text-[#0c363e] shadow-sm' : 'bg-transparent text-[#6B7280]'}`}
+            onClick={() => setActiveView('list')}
+          >
+            <List className="h-4 w-4" />
+            <span>List</span>
+          </button>
+          <button
+            className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 rounded-lg ${activeView === 'map' ? 'bg-white text-[#0c363e] shadow-sm' : 'bg-transparent text-[#6B7280]'}`}
+            onClick={() => setActiveView('map')}
+          >
+            <Map className="h-4 w-4" />
+            <span>Map</span>
+          </button>
+        </div>
+      </div>
+
+      {/* List View Content */}
+      <div className={`w-full lg:w-1/2 bg-white p-4 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
         <HotelList
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
           selectedHotel={selectedHotel}
           onSelectHotel={setSelectedHotel}
         />
       </div>
-      <div className="w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0">
-        <div className="w-full h-[350px] lg:h-screen">
+
+      {/* Map View Content */}
+      <div className={`w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0 ${activeView === 'map' ? 'block' : 'hidden lg:block'}`}>
+        <div className="w-full h-[calc(100vh-56px)] lg:h-screen">
           <MapView
             hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
             selectedHotel={selectedHotel}
