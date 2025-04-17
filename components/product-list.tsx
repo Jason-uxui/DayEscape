@@ -22,7 +22,7 @@ export default function ProductList({ hotelId }: ProductListProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const { isInCart, cartVersion } = useCart()
+  const { isInCart } = useCart()
   const [productStatuses, setProductStatuses] = useState<{ [key: string]: string }>({})
   const [productAvailability, setProductAvailability] = useState<{ [key: string]: string }>({})
   const [loading, setLoading] = useState(true)
@@ -61,7 +61,7 @@ export default function ProductList({ hotelId }: ProductListProps) {
       }
     })
     setProductStatuses(newStatuses)
-  }, [isInCart, cartVersion, products])
+  }, [isInCart, products])
 
   useEffect(() => {
     async function fetchAvailability() {
@@ -114,9 +114,9 @@ export default function ProductList({ hotelId }: ProductListProps) {
 
       <div className="space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="flex items-center justify-between rounded-lg border bg-white p-6">
-            <div>
-              <div className="flex items-center gap-2">
+          <div key={product.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border bg-white p-4 sm:p-6">
+            <div className="mb-4 sm:mb-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lg font-semibold text-[#333333]">{product.name}</h3>
                 {/* Hiển thị "in cart" nếu sản phẩm đã được thêm vào giỏ hàng */}
                 {productStatuses[product.id] ? (
@@ -139,9 +139,13 @@ export default function ProductList({ hotelId }: ProductListProps) {
                   )
                 )}
               </div>
+              <div className="mt-2 sm:hidden">
+                <span className="text-sm text-[#4f4f4f]">Max {product.max_capacity} People</span>
+                <span className="text-lg font-semibold text-[#333333] ml-2">${product.base_price}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right flex flex-col items-end">
+            <div className="flex items-center justify-between sm:justify-end gap-4">
+              <div className="hidden sm:flex sm:flex-col sm:items-end">
                 <span className="text-sm text-[#4f4f4f]">Max {product.max_capacity} People</span>
                 <span className="text-lg font-semibold text-[#333333]">${product.base_price}</span>
               </div>
@@ -150,7 +154,7 @@ export default function ProductList({ hotelId }: ProductListProps) {
                   setSelectedProductId(product.id)
                   setDialogOpen(true)
                 }}
-                className="bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full"
+                className="bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full ml-auto sm:ml-0"
                 disabled={isProductSoldOut(product.id)}
               >
                 Select
