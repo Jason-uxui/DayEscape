@@ -448,8 +448,8 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
                     {dateError && (
                       <div className="absolute -bottom-5 left-0 text-xs text-red-500">{dateError}</div>
                     )}
-                    <span className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-600 whitespace-nowrap">
-                      Only {productDetails.max_capacity - (guestCount.adults + guestCount.children)} left
+                    <span className="text-sm text-[#4f4f4f]">
+                      Capacity: {productDetails.max_capacity - (guestCount.adults + guestCount.children)}
                     </span>
                   </div>
                 </div>
