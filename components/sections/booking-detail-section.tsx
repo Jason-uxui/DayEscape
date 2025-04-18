@@ -59,8 +59,24 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
   const { toast } = useToast()
   const [booking, setBooking] = useState<BookingDetails | null>(null)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const searchParams = useSearchParams()
   const status = (searchParams.get("status") as "upcoming" | "completed" | "cancelled") || "upcoming"
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    // Initial check
+    checkMobile()
+
+    // Add event listener
+    window.addEventListener('resize', checkMobile)
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     // In a real application, you would fetch the booking details from an API
@@ -104,7 +120,11 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
   }, [bookingId, status])
 
   if (!booking) {
-    return <div>Loading...</div>
+    return (
+      <div className="container max-w-6xl mx-auto px-4 py-8 h-64 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0f373d]"></div>
+      </div>
+    )
   }
 
   const onCancel = () => {
@@ -125,19 +145,19 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
   }
 
   return (
-    <div className="container max-w-6xl mx-auto px-4 py-8">
-      <Link href="/users/my-bookings" className="inline-flex items-center text-[#0f373d] hover:text-[#0f373d]/80 mb-8">
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to My Bookings
+    <div className="container max-w-6xl mx-auto px-4 py-8 pb-24 md:pb-8">
+      <Link href="/users/my-bookings" className="inline-flex items-center text-[#0f373d] hover:text-[#0f373d]/80 mb-6">
+        <ArrowLeft className="mr-1 h-4 w-4" />
+        <span className="text-sm md:text-base">Back to My Bookings</span>
       </Link>
 
-      <div className="grid lg:grid-cols-[1fr,400px] gap-8">
+      <div className="grid md:grid-cols-[1fr,350px] lg:grid-cols-[1fr,400px] gap-6">
         {/* Left Column - Main Content */}
-        <div className="bg-white rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-[#0f373d] mb-6">Booking Details</h2>
+        <div className="bg-white rounded-lg p-4 md:p-6">
+          <h2 className="text-xl md:text-2xl font-bold text-[#0f373d] mb-4 md:mb-6">Booking Details</h2>
 
-          <div className="flex gap-6 items-start mb-8">
-            <div className="relative h-32 w-48 flex-shrink-0 overflow-hidden rounded-lg">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start mb-6 md:mb-8">
+            <div className="relative h-48 sm:h-32 w-full sm:w-48 flex-shrink-0 overflow-hidden rounded-lg">
               <Image
                 src={booking.hotelImage || "/placeholder.svg"}
                 alt={booking.hotelName}
@@ -145,22 +165,21 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
                 className="object-cover"
               />
             </div>
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
-                  <h3 className="text-2xl font-semibold text-[#0f373d]">{booking.hotelName}</h3>
-                  <p className="text-[#4f4f4f] mt-1">Brisbane CBD</p>
-                  <p className="text-[#4f4f4f] mt-1">Booked: {format(booking.checkInDate, "MMM dd, yyyy")}</p>
+                  <h3 className="text-xl md:text-2xl font-semibold text-[#0f373d]">{booking.hotelName}</h3>
+                  <p className="text-sm text-[#4f4f4f] mt-1">Brisbane CBD</p>
+                  <p className="text-sm text-[#4f4f4f] mt-1">Booked: {format(booking.checkInDate, "MMM dd, yyyy")}</p>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className="flex flex-row sm:flex-col justify-between sm:items-end mt-2 sm:mt-0">
                   <div
-                    className={`px-3 py-1 rounded-full ${
-                      booking.status === "upcoming"
-                        ? "bg-[#ebfaf3] text-[#16a34a]"
-                        : booking.status === "completed"
-                          ? "bg-[#e5e7eb] text-[#4b5563]"
-                          : "bg-[#fee2e2] text-[#dc2626]"
-                    } text-sm font-medium`}
+                    className={`px-3 py-1 rounded-full ${booking.status === "upcoming"
+                      ? "bg-[#ebfaf3] text-[#16a34a]"
+                      : booking.status === "completed"
+                        ? "bg-[#e5e7eb] text-[#4b5563]"
+                        : "bg-[#fee2e2] text-[#dc2626]"
+                      } text-xs md:text-sm font-medium`}
                   >
                     {booking.status === "upcoming"
                       ? "Upcoming"
@@ -168,38 +187,39 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
                         ? "Completed"
                         : "Cancelled"}
                   </div>
-                  <p className="text-base text-[#4f4f4f] mt-1">{format(booking.checkInDate, "EEE, MMM d, yyyy")}</p>
+                  <p className="text-xs md:text-sm text-[#4f4f4f] sm:mt-1">{format(booking.checkInDate, "EEE, MMM d, yyyy")}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Products */}
-          <div className="space-y-4 mb-8">
-            <div className="flex justify-between items-center">
-              <span className="text-[#0f373d]">Day Pass - 2 adult, 1 child</span>
-              <span className="font-medium text-[#0f373d]">$200</span>
+          <div className="space-y-3 mb-6">
+            <h4 className="text-sm font-medium text-[#0f373d] mb-2">Your booking includes:</h4>
+            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+              <span className="text-sm md:text-base text-[#0f373d]">Day Pass - 2 adult, 1 child</span>
+              <span className="font-medium text-sm md:text-base text-[#0f373d]">$200</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#0f373d]">Poolside Bed - 1 adult</span>
-              <span className="font-medium text-[#0f373d]">$55</span>
+            <div className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
+              <span className="text-sm md:text-base text-[#0f373d]">Poolside Bed - 1 adult</span>
+              <span className="font-medium text-sm md:text-base text-[#0f373d]">$55</span>
             </div>
           </div>
 
           {/* Action Buttons */}
           {booking.status === "upcoming" && (
-            <div className="flex gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <Button
                 onClick={onCancel}
                 variant="outline"
-                className="flex-1 border-gray-300 text-red-500 hover:bg-white hover:border-red-500 hover:text-red-500"
+                className="sm:flex-1 border-gray-300 text-red-500 hover:bg-white hover:border-red-500 hover:text-red-500"
               >
                 Cancel Booking
               </Button>
               <Button
                 onClick={onUpdate}
                 variant="secondary"
-                className="flex-1 bg-[#f6ddb8] text-[#0f373d] hover:bg-[#f6ddb8]/90"
+                className="sm:flex-1 bg-[#f6ddb8] text-[#0f373d] hover:bg-[#f6ddb8]/90"
               >
                 Update Booking
               </Button>
@@ -210,7 +230,7 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
               <Button
                 onClick={() => router.push(`/hotels/${booking.id}`)}
                 variant="secondary"
-                className="flex-1 bg-[#f6ddb8] text-[#0f373d] hover:bg-[#f6ddb8]/90"
+                className="w-full sm:w-auto sm:flex-1 bg-[#f6ddb8] text-[#0f373d] hover:bg-[#f6ddb8]/90"
               >
                 Book Again
               </Button>
@@ -218,17 +238,18 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
           )}
 
           {/* Booking Details */}
-          <div className="space-y-4 text-[#4f4f4f]">
-            <div className="flex justify-between items-start">
+          <div className="space-y-3 text-sm md:text-base text-[#4f4f4f] mb-6 bg-gray-50 p-4 rounded-lg">
+            <h4 className="font-medium text-[#0f373d] mb-2">Booking Information</h4>
+            <div className="flex justify-between items-start text-sm">
               <span>Booking ID</span>
-              <div className="flex flex-col items-end">
-                <span className="text-[#0f373d]">bcff9b63-09fc-4205-9adf-dd30447b7a07</span>
+              <div className="flex flex-col items-end max-w-[60%]">
+                <span className="text-[#0f373d] text-xs md:text-sm truncate">bcff9b63-09fc-4205-9adf-dd30447b7a07</span>
                 <Button
                   variant="link"
-                  className="text-[#0f373d] p-0 h-auto underline"
+                  className="text-xs text-[#0f373d] p-0 h-auto underline"
                   onClick={() => {
                     toast({
-                      variant: "success",
+                      variant: "default",
                       title: "Booking details sent to your email",
                       className: "rounded-full",
                     })
@@ -240,11 +261,11 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
             </div>
             <div className="flex justify-between items-center">
               <span>Check-in</span>
-              <span className="text-[#0f373d]">12:00 PM</span>
+              <span className="text-[#0f373d]">{booking.checkInTime}</span>
             </div>
             <div className="flex justify-between items-center">
               <span>Check-out</span>
-              <span className="text-[#0f373d]">1:00 PM</span>
+              <span className="text-[#0f373d]">{booking.checkOutTime}</span>
             </div>
           </div>
 
@@ -287,34 +308,74 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
         </div>
 
         {/* Right Column - Summary Card */}
-        <div className="bg-white rounded-lg p-6 h-fit">
-          <h2 className="text-xl font-semibold text-[#0f373d] mb-6">Summary</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-[#4f4f4f]">Subtotal</span>
-              <span className="font-medium">$40.00</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#4f4f4f]">Platform Fee</span>
-              <span className="font-medium">-$0.00</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#4f4f4f]">Tax</span>
-              <span className="font-medium">$4.00</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#4f4f4f]">Discount</span>
-              <span className="font-medium">-$0.00</span>
-            </div>
-            <div className="pt-4 border-t">
+        <div className={`bg-white rounded-lg p-4 md:p-6 h-fit ${isMobile ? 'fixed bottom-0 left-0 right-0 z-40 rounded-t-lg border-t shadow-[0_-4px_12px_rgba(0,0,0,0.1)]' : ''}`}>
+          {!isMobile && <h2 className="text-xl font-semibold text-[#0f373d] mb-4">Summary</h2>}
+
+          <div className="space-y-3">
+            {/* Summary content - hidden on mobile for compact view */}
+            {!isMobile ? (
+              <>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#4f4f4f]">Subtotal</span>
+                  <span className="font-medium text-sm">$40.00</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#4f4f4f]">Platform Fee</span>
+                  <span className="font-medium text-sm">-$0.00</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#4f4f4f]">Tax</span>
+                  <span className="font-medium text-sm">$4.00</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-[#4f4f4f]">Discount</span>
+                  <span className="font-medium text-sm">-$0.00</span>
+                </div>
+              </>
+            ) : null}
+
+            <div className={`${!isMobile ? 'pt-3 border-t' : ''}`}>
               <div className="flex justify-between items-center">
-                <span className="font-bold text-[#0f373d]">Total due</span>
-                <span className="text-2xl font-bold text-[#0f373d]">$44.00</span>
+                <span className="text-sm font-medium text-[#0f373d]">Total due</span>
+                <span className="text-lg md:text-xl font-bold text-[#0f373d]">$44.00</span>
               </div>
             </div>
           </div>
+
+          {/* Mobile action buttons */}
+          {isMobile && booking.status === "upcoming" && (
+            <div className="flex gap-3 mt-3">
+              <Button
+                onClick={onCancel}
+                variant="outline"
+                size="sm"
+                className="flex-1 border-gray-300 text-red-500 hover:bg-white hover:border-red-500 hover:text-red-500 py-2"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={onUpdate}
+                variant="secondary"
+                size="sm"
+                className="flex-1 bg-[#f6ddb8] text-[#0f373d] hover:bg-[#f6ddb8]/90 py-2"
+              >
+                Update
+              </Button>
+            </div>
+          )}
+          {isMobile && booking.status === "completed" && (
+            <div className="mt-3">
+              <Button
+                onClick={() => router.push(`/hotels/${booking.id}`)}
+                className="w-full bg-[#0f373d] hover:bg-[#0f373d]/90 py-2"
+              >
+                Book Again
+              </Button>
+            </div>
+          )}
         </div>
       </div>
+
       <CancelBookingDialog
         open={isCancelDialogOpen}
         onOpenChange={setIsCancelDialogOpen}
