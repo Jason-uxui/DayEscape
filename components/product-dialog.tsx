@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Minus, Plus, Calendar, AlertTriangle } from "lucide-react"
+import { X, Minus, Plus, Calendar, AlertTriangle, ChevronRight } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -58,6 +58,8 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [productDetails, setProductDetails] = useState<ProductDetails | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // State để theo dõi tab nào đang active trên mobile
+  const [activeTab, setActiveTab] = useState<'info' | 'booking'>('info')
 
   // Kiểm tra xem sản phẩm có bị Sold Out không
   const isSoldOut = availabilityStatus.toLowerCase().includes("sold out")
@@ -102,6 +104,8 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
 
     if (open && productId) {
       fetchProductDetails()
+      // Reset về tab info khi mở dialog
+      setActiveTab('info')
     }
   }, [productId, open])
 
@@ -200,178 +204,216 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1000px] w-full h-[calc(100vh-88px)] p-0 overflow-hidden">
+      <DialogContent className="max-w-[1000px] w-[94%] sm:w-[90%] md:w-[85%] mx-auto h-[85vh] p-0 overflow-hidden rounded-lg flex flex-col">
         <button
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 hover:text-[#0C363E] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-[#0C363E]"
+          className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 hover:text-[#0C363E] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-[#0C363E]"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </button>
 
-        <div className="grid md:grid-cols-2 h-full overflow-hidden">
+        {/* Mobile Tabs - Chỉ hiển thị trên mobile */}
+        <div className="md:hidden border-b sticky top-0 bg-white z-40 rounded-t-lg">
+          <div className="flex">
+            <button
+              className={`flex-1 py-3 text-center ${activeTab === 'info' ? 'border-b-2 border-[#0f373d] text-[#0f373d] font-medium' : 'text-[#4f4f4f]'}`}
+              onClick={() => setActiveTab('info')}
+            >
+              Product Info
+            </button>
+            <button
+              className={`flex-1 py-3 text-center ${activeTab === 'booking' ? 'border-b-2 border-[#0f373d] text-[#0f373d] font-medium' : 'text-[#4f4f4f]'}`}
+              onClick={() => setActiveTab('booking')}
+            >
+              Booking
+            </button>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 flex-1 overflow-hidden">
           {/* Left Column - Product Details */}
-          <div className="p-6 overflow-y-auto bg-[#FDFAF5] h-full w-full">
-            <DialogHeader>
-              <DialogTitle>{productDetails.name}</DialogTitle>
-            </DialogHeader>
+          <div className={`${activeTab === 'info' ? 'block' : 'hidden'} md:block bg-[#FDFAF5] h-full flex flex-col overflow-hidden`}>
+            <div className="overflow-y-auto h-full pb-[76px]">
+              <div className="p-4 md:p-6">
+                <DialogHeader className="md:block hidden">
+                  <DialogTitle>{productDetails.name}</DialogTitle>
+                </DialogHeader>
 
-            <div className="mt-6">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg w-full">
-                <img
-                  src={selectedImage || productDetails.images[0]}
-                  alt={`${productDetails.name} main view`}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </div>
+                {/* Mobile Dialog Title - Chỉ hiển thị trên mobile */}
+                <h2 className="text-xl font-semibold text-[#333333] md:hidden">{productDetails.name}</h2>
 
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-                {productDetails.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(image)}
-                    className={cn(
-                      "relative flex-none aspect-[4/3] w-20 overflow-hidden rounded-lg border-2",
-                      selectedImage === image ? "border-[#0f373d]" : "border-transparent",
-                    )}
-                  >
+                <div className="mt-4 md:mt-6">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg w-full">
                     <img
-                      src={image || "/placeholder.svg"}
-                      alt={`${productDetails.name} thumbnail ${index + 1}`}
+                      src={selectedImage || productDetails.images[0]}
+                      alt={`${productDetails.name} main view`}
                       className="absolute inset-0 h-full w-full object-cover"
-                      style={{ objectPosition: "center" }}
                     />
-                  </button>
-                ))}
+                  </div>
+
+                  <div className="mt-4 flex gap-2 overflow-x-auto pb-2 snap-x">
+                    {productDetails.images.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImage(image)}
+                        className={cn(
+                          "relative flex-none aspect-[4/3] w-16 md:w-20 overflow-hidden rounded-lg border-2 snap-center",
+                          selectedImage === image ? "border-[#0f373d]" : "border-transparent",
+                        )}
+                      >
+                        <img
+                          src={image || "/placeholder.svg"}
+                          alt={`${productDetails.name} thumbnail ${index + 1}`}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          style={{ objectPosition: "center" }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 md:mt-8">
+                  <h3 className="text-lg font-semibold text-[#333333]">{productDetails.name} Details</h3>
+                  <p className="mt-2 md:mt-4 text-[#4f4f4f]">{productDetails.description}</p>
+                </div>
               </div>
             </div>
 
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-[#333333]">{productDetails.name} Details</h3>
-              <p className="mt-4 text-[#4f4f4f]">{productDetails.description}</p>
+            {/* Button to navigate to booking tab - Chỉ hiển thị trên mobile */}
+            <div className="p-4 md:hidden bg-[#FDFAF5] border-t fixed bottom-0 left-0 right-0 z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+              <Button
+                className="w-full bg-[#0f373d] hover:bg-[#0f373d]/90"
+                onClick={() => setActiveTab('booking')}
+              >
+                Continue to Booking <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
             </div>
           </div>
 
           {/* Right Column - Booking Details */}
-          <div className="border-t md:border-l md:border-t-0 bg-white p-6 overflow-y-auto h-full">
-            <h2 className="text-xl font-semibold text-[#333333]">Who's coming?</h2>
+          <div className={`${activeTab === 'booking' ? 'block' : 'hidden'} md:block border-t-0 md:border-l md:border-t-0 bg-white h-full flex flex-col overflow-hidden`}>
+            <div className="overflow-y-auto h-full pb-[76px]">
+              <div className="p-4 md:p-6">
+                <h2 className="text-xl font-semibold text-[#333333]">Who's coming?</h2>
 
-            <div className="mt-6 space-y-6">
-              {/* Adults */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-[#333333]">
-                    Adult <span className="text-[#4f4f4f]">(Over 18)</span>
+                <div className="mt-6 space-y-5 md:space-y-6">
+                  {/* Adults */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-[#333333]">
+                        Adult <span className="text-[#4f4f4f]">(Over 18)</span>
+                      </div>
+                      <div className="text-sm text-[#4f4f4f]">Starting at ${productDetails.base_price}</div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => updateGuestCount("adults", false)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-4 text-center">{guestCount.adults}</span>
+                      <button
+                        onClick={() => updateGuestCount("adults", true)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-sm text-[#4f4f4f]">Starting at ${productDetails.base_price}</div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => updateGuestCount("adults", false)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="w-4 text-center">{guestCount.adults}</span>
-                  <button
-                    onClick={() => updateGuestCount("adults", true)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Children */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-[#333333]">
-                    Child <span className="text-[#4f4f4f]">(Under 17)</span>
+                  {/* Children */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-[#333333]">
+                        Child <span className="text-[#4f4f4f]">(Under 17)</span>
+                      </div>
+                      <div className="text-sm text-[#4f4f4f]">Starting at ${productDetails.base_price}</div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => updateGuestCount("children", false)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-4 text-center">{guestCount.children}</span>
+                      <button
+                        onClick={() => updateGuestCount("children", true)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-sm text-[#4f4f4f]">Starting at ${productDetails.base_price}</div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => updateGuestCount("children", false)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="w-4 text-center">{guestCount.children}</span>
-                  <button
-                    onClick={() => updateGuestCount("children", true)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
 
-              {/* Infants */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-[#333333]">
-                    Infant <span className="text-[#4f4f4f]">(Under 2)</span>
+                  {/* Infants */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-[#333333]">
+                        Infant <span className="text-[#4f4f4f]">(Under 2)</span>
+                      </div>
+                      <div className="text-sm text-[#4f4f4f]">Free</div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => updateGuestCount("infants", false)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-4 text-center">{guestCount.infants}</span>
+                      <button
+                        onClick={() => updateGuestCount("infants", true)}
+                        className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-sm text-[#4f4f4f]">Free</div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => updateGuestCount("infants", false)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="w-4 text-center">{guestCount.infants}</span>
-                  <button
-                    onClick={() => updateGuestCount("infants", true)}
-                    className="rounded-full border h-8 w-8 flex items-center justify-center text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
+
+                  {/* Date Selection */}
+                  <div className="flex items-center justify-between space-x-4">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]">
+                          <Calendar className="h-4 w-4" />
+                          <span>{date ? format(date, "EEE dd MMM yyyy") : "Select date"}</span>
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                    <span className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-600 whitespace-nowrap">
+                      Only {productDetails.max_capacity - (guestCount.adults + guestCount.children)} left
+                    </span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Date Selection */}
-              <div className="flex items-center justify-between space-x-4">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]">
-                      <Calendar className="h-4 w-4" />
-                      <span>{date ? format(date, "EEE dd MMM yyyy") : "Select date"}</span>
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
-                  </PopoverContent>
-                </Popover>
-                <span className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-600 whitespace-nowrap">
-                  Only {productDetails.max_capacity - (guestCount.adults + guestCount.children)} left
-                </span>
+            {/* Footer với giá và nút thêm vào giỏ hàng - Fixed */}
+            <div className="p-4 md:p-6 border-t fixed bottom-0 left-0 md:left-auto md:w-[calc(42.5%-1px)] right-0 bg-white z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between">
+                <div className="text-lg font-medium">Total</div>
+                <div className="text-lg font-medium">${calculateTotal()}</div>
               </div>
-
-              {/* Total */}
-              <div className="mt-8 flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                  <div className="text-lg font-medium">Total</div>
-                  <div className="text-lg font-medium">${calculateTotal()}</div>
-                </div>
-
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={isSubmitting || isSoldOut || !date || !user || isOverCapacity}
-                  className="w-full"
-                >
-                  {isSubmitting
-                    ? "Adding to Cart..."
-                    : isSoldOut
-                      ? "Sold Out"
-                      : isOverCapacity
-                        ? "Exceeds Capacity"
-                        : "Add to Cart"
-                  }
-                </Button>
-              </div>
+              <Button
+                onClick={handleAddToCart}
+                disabled={isSubmitting || isSoldOut || !date || !user || isOverCapacity}
+                className="w-full mt-3 bg-[#0f373d] hover:bg-[#0f373d]/90"
+              >
+                {isSubmitting
+                  ? "Adding to Cart..."
+                  : isSoldOut
+                    ? "Sold Out"
+                    : isOverCapacity
+                      ? "Exceeds Capacity"
+                      : "Add to Cart"
+                }
+              </Button>
             </div>
           </div>
         </div>
