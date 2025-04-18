@@ -229,7 +229,7 @@ export default function CartSidebar() {
             )}
 
             {/* Slide-in panel */}
-            <div className={`lg:hidden fixed top-0 right-0 bottom-0 w-full sm:max-w-md bg-white z-50 cart-slide-in ${mobileCartOpen ? 'open' : 'closed'}`}>
+            <div className={`lg:hidden fixed top-0 right-0 bottom-0 w-[85%] xs:w-[80%] sm:w-[70%] md:w-[60%] max-w-md bg-white z-50 cart-slide-in ${mobileCartOpen ? 'open' : 'closed'} shadow-xl rounded-l-2xl`}>
                 {mobileCartOpen && (
                     <div className="relative h-full overflow-auto">
                         <button
