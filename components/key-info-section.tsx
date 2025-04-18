@@ -38,7 +38,7 @@ export default function KeyInfoSection({ hotelInfo }: KeyInfoSectionProps) {
             "Enjoy your daycation!",
           ].map((step, index) => (
             <div key={index} className="flex items-start gap-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b6e2eb] text-sm font-medium text-[#0f373d]">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#b6e2eb] text-sm font-medium text-[#0f373d]">
                 {String(index + 1).padStart(2, "0")}
               </div>
               <p className="mt-1 text-[#374151]">{step}</p>

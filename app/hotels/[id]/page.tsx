@@ -64,29 +64,38 @@ async function getHotel(idOrName: string) {
 
 export default function HotelPage() {
   const params = useParams();
-  const hotelId = params.id as string;
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
 
-  const [hotel, setHotel] = useState<any>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
-  const [isCopied, setIsCopied] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
-  const searchParams = useSearchParams()
+  // Check if there's a tab query parameter
+  const tabParam = searchParams.get('tab');
+  const defaultTab = tabParam && ['products', 'reviews', 'info'].includes(tabParam) ? tabParam : 'products';
   const isUpdatingBooking = searchParams.get("updateBooking") === "true"
+
+  const [hotel, setHotel] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHotel() {
-      const { hotel, error } = await getHotel(hotelId)
+      const { hotel, error } = await getHotel(params.id as string)
       if (error) {
         setError(error)
-      } else {
+      } else if (hotel) {
         setHotel(hotel)
+
+        // Check if this hotel is saved by the user
+        const savedHotels = JSON.parse(localStorage.getItem("savedHotels") || "[]")
+        setIsSaved(savedHotels.includes(hotel.id))
       }
+      setIsLoading(false)
     }
     fetchHotel()
-  }, [hotelId])
+  }, [params.id])
 
   useEffect(() => {
     if (isUpdatingBooking) {
@@ -101,6 +110,19 @@ export default function HotelPage() {
       console.log("Updating booking with:", { checkInDate, adults, children, infants, productType })
     }
   }, [isUpdatingBooking, searchParams])
+
+  // Scroll to products section if tab=products is in the URL
+  useEffect(() => {
+    if (tabParam === 'products' && !isLoading) {
+      // Give time for the page to render
+      setTimeout(() => {
+        const productsSection = document.querySelector('[value="products"]');
+        if (productsSection) {
+          productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+  }, [tabParam, isLoading]);
 
   const handleShare = async () => {
     if (!hotel) return;
@@ -334,7 +356,7 @@ export default function HotelPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 mt-8">
-            <div className="flex-1 p-8 bg-white border rounded-md">
+            <div className="flex-1 p-4 sm:p-6 md:p-8 bg-white border rounded-md">
               <header className="mb-8">
                 <div className="flex flex-col sm:flex-row items-start sm:justify-between gap-4 sm:gap-0">
                   <div>
@@ -377,7 +399,7 @@ export default function HotelPage() {
                 </div>
               </header>
 
-              <Tabs defaultValue="products" className="mt-8">
+              <Tabs defaultValue={defaultTab} className="mt-8">
                 <TabsList className="bg-transparent border-b rounded-none w-full justify-start h-auto">
                   <TabsTrigger
                     value="products"
