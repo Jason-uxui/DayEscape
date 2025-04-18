@@ -114,7 +114,14 @@ export default function ProductList({ hotelId }: ProductListProps) {
 
       <div className="space-y-4">
         {products.map((product) => (
-          <div key={product.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border bg-white p-4 sm:p-6">
+          <div
+            key={product.id}
+            className={`flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border bg-white p-4 sm:p-6 cursor-pointer hover:shadow-md transition-shadow ${!isProductSoldOut(product.id) ? 'hover:border-[#0f373d]/30' : ''}`}
+            onClick={() => {
+              setSelectedProductId(product.id)
+              setDialogOpen(true)
+            }}
+          >
             <div className="mb-4 sm:mb-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-lg font-semibold text-[#333333]">{product.name}</h3>
@@ -150,7 +157,8 @@ export default function ProductList({ hotelId }: ProductListProps) {
                 <span className="text-lg font-semibold text-[#333333]">${product.base_price}</span>
               </div>
               <Button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation(); // Ngăn onClick của card cha kích hoạt
                   setSelectedProductId(product.id)
                   setDialogOpen(true)
                 }}
