@@ -1,15 +1,13 @@
 "use client"
 
-import { Calendar as CalendarIcon, MapPin, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { MapPin, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
 import { format, isBefore, startOfDay, parse, isValid } from "date-fns"
 import { useState, useRef, useEffect } from "react"
-import { cn } from "@/lib/utils"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { enAU, vi } from "date-fns/locale"
+import { enAU } from "date-fns/locale"
 import { AUSTRALIA_POSTCODES, PostcodeData, findMatchingPostcodes } from "@/lib/postcodes"
+import { DatePicker } from "@/components/common/date-picker"
 
 // List of popular locations for suggestions
 const POPULAR_LOCATIONS = [
@@ -284,28 +282,17 @@ export function Search() {
         </div>
 
         <div className="flex-1">
-          <label className="text-sm font-medium text-[#374151] ml-9">Escape day</label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className={`mt-1 flex w-full items-center gap-2 rounded-full p-2 border ${errors.date ? 'border-red-500' : 'border-transparent'} transition-colors`}>
-                <CalendarIcon className="h-5 w-5 text-[#4b5563]" />
-                <span className="flex-1 text-left text-[#4b5563]">
-                  {date ? <span className="font-medium text-[#0c363e]">{format(date, "PPP", { locale: enAU })}</span> : "Pick a date"}
-                </span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 z-50" align="center" sideOffset={5}>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={handleDateSelect}
-                disabled={(date) => isBefore(date, today)}
-                locale={enAU}
-                weekStartsOn={0}
-                className="custom-calendar"
-              />
-            </PopoverContent>
-          </Popover>
+          <label className="text-sm font-medium text-[#374151] ml-8">Escape day</label>
+          <div className={`mt-1 ${errors.date ? 'border-red-500' : ''}`}>
+            <DatePicker
+              date={date}
+              onDateChange={handleDateSelect}
+              buttonClassName={`flex w-full items-center gap-2 rounded-full p-2 border ${errors.date ? 'border-red-500' : 'border-transparent'} transition-colors`}
+              formatString="PPP"
+              placeholder="Pick a date"
+              minDate={today}
+            />
+          </div>
           {errors.date && (
             <p className="text-red-500 text-xs mt-1 ml-9">{errors.date}</p>
           )}
