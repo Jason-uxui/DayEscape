@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Minus, Plus, AlertTriangle, ChevronRight } from "lucide-react"
+import { X, Minus, Plus, AlertTriangle, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useCart } from "@/contexts/CartContext"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/contexts/AuthContext"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { DatePicker } from "@/components/common/date-picker"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
@@ -404,15 +404,15 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
             </div>
 
             {/* Footer với giá và nút thêm vào giỏ hàng - Fixed */}
-            <div className="p-4 md:p-6 border-t fixed bottom-0 left-0 md:left-auto md:w-[calc(42.5%-1px)] right-0 bg-white z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center justify-between">
+            <div className="p-4 md:p-6 border-t fixed bottom-0 left-0 md:left-auto right-0 bg-white z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] w-full md:w-[50%]">
+              <div className="flex items-center justify-between w-full">
                 <div className="text-lg font-medium">Total</div>
                 <div className="text-lg font-medium">${calculateTotal()}</div>
               </div>
               <Button
                 onClick={handleAddToCart}
                 disabled={isSubmitting || isSoldOut || !date || !user || isOverCapacity}
-                className="w-full mt-3 bg-[#0f373d] hover:bg-[#0f373d]/90"
+                className="w-full mt-3 bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full py-3"
               >
                 {isSubmitting
                   ? "Adding to Cart..."
