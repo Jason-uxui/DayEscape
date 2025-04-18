@@ -157,16 +157,6 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
       return
     }
 
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Please log in to make a booking",
-        description: "You need to be logged in to create a booking.",
-        className: "rounded-full",
-      })
-      return
-    }
-
     if (!date) {
       setDateError("Please select a date")
       toast({
@@ -184,6 +174,17 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
         variant: "destructive",
         title: "Invalid date",
         description: "Please select a date in the future.",
+        className: "rounded-full",
+      })
+      return
+    }
+
+    // Kiểm tra đăng nhập ngay khi nhấn button thay vì disable button
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Please log in to make a booking",
+        description: "You need to be logged in to create a booking.",
         className: "rounded-full",
       })
       return
@@ -463,7 +464,7 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
               </div>
               <Button
                 onClick={handleAddToCart}
-                disabled={isSubmitting || isSoldOut || !date || !user || isOverCapacity}
+                disabled={isSubmitting || isSoldOut || !date || isOverCapacity}
                 className="w-full mt-3 bg-[#0f373d] hover:bg-[#0f373d]/90 rounded-full py-3"
               >
                 {isSubmitting
