@@ -1,17 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Minus, Plus, Calendar, AlertTriangle, ChevronRight } from "lucide-react"
+import { X, Minus, Plus, AlertTriangle, ChevronRight } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { format } from "date-fns"
 import { useCart } from "@/contexts/CartContext"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/contexts/AuthContext"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { format } from "date-fns"
 // import { createBooking } from "@/app/actions/create-booking"
 // import { useTransition } from "react"
 // import { useFormStatus } from "react-dom"
@@ -377,13 +378,21 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
                   <div className="flex items-center justify-between space-x-4">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <button className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d]">
-                          <Calendar className="h-4 w-4" />
-                          <span>{date ? format(date, "EEE dd MMM yyyy") : "Select date"}</span>
-                        </button>
+                        <Button
+                          variant="outline"
+                          className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d] w-auto"
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                          {date ? format(date, "EEE dd MMM yyyy") : "Select date"}
+                        </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
+                      <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                        />
                       </PopoverContent>
                     </Popover>
                     <span className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-600 whitespace-nowrap">
