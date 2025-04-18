@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/components/ui/use-toast"
 import ErrorBoundary from "../ErrorBoundary"
+import { LoadingScreen } from "@/components/ui/loading-spinner"
 
 interface FormData {
   firstName: string
@@ -225,7 +226,7 @@ export function BillingDetailsSection() {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingScreen />
   }
 
   if (!hotelInfo) {

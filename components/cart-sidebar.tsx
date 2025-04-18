@@ -1,14 +1,12 @@
 "use client"
 
-import { X, Calendar, ShoppingCart } from "lucide-react"
+import { X, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/contexts/CartContext"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
+import { DatePicker } from "@/components/common/date-picker"
 
 // Additional CSS for the slide-in animation
 const slideInStyles = `
@@ -117,29 +115,13 @@ export default function CartSidebar() {
                 {/* Escape Day Section */}
                 <div className="bg-white rounded-lg border p-4 mb-4">
                     <div className="text-sm text-[#4f4f4f] mb-1">Escape day</div>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <button className="flex w-full items-center gap-2 text-left font-medium text-[#333333]">
-                                <Calendar className="h-5 w-5 text-[#4f4f4f]" />
-                                <span>{format(date, "MMM d, yyyy")}</span>
-                            </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <CalendarComponent
-                                mode="single"
-                                selected={date}
-                                onSelect={handleDateSelect}
-                                initialFocus
-                                className="rounded-md border"
-                                classNames={{
-                                    day_selected:
-                                        "bg-[#0C363E] text-white hover:bg-[#0C363E] hover:text-white focus:bg-[#0C363E] focus:text-white",
-                                    day_today: "bg-accent text-accent-foreground",
-                                    day: cn("h-9 w-9 p-0 font-normal aria-selected:opacity-100"),
-                                }}
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <DatePicker
+                        date={date}
+                        onDateChange={handleDateSelect}
+                        buttonClassName="flex w-full items-center gap-2 text-left font-medium text-[#333333]"
+                        formatString="MMM d, yyyy"
+                        noBorder
+                    />
                 </div>
             </div>
 

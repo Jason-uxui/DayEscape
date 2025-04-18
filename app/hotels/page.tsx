@@ -7,6 +7,7 @@ import { Search } from "@/components/search"
 import { HotelSearchResults } from "@/components/hotel-search-results"
 import { supabase, isSupabaseInitialized } from "@/lib/supabase"
 import { useSearchParams } from "next/navigation"
+import { LoadingScreen } from "@/components/ui/loading-spinner"
 
 export default function HotelsPage() {
   const [isLoading, setIsLoading] = useState(true)
@@ -36,7 +37,7 @@ export default function HotelsPage() {
   }, [])
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <LoadingScreen />
   }
 
   if (error) {

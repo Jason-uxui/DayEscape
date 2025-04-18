@@ -34,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans">
+      <body className="font-sans" style={{}} suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>{children}</CartProvider>
         </AuthProvider>

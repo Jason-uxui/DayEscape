@@ -21,6 +21,7 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { HotelImageCarousel } from "@/components/hotel-image-carousel"
 import { useToast } from "@/components/ui/use-toast"
+import { LoadingScreen } from "@/components/ui/loading-spinner"
 
 async function getHotel(idOrName: string) {
   let query = supabase.from("hotels").select(`
@@ -285,6 +286,10 @@ export default function HotelPage() {
         <SiteFooter />
       </div>
     )
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />
   }
 
   if (!hotel) {
