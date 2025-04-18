@@ -9,10 +9,10 @@ import { useToast } from "@/components/ui/use-toast"
 import { useCart } from "@/contexts/CartContext"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/contexts/AuthContext"
-import { DatePicker } from "@/components/common/date-picker"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
+import { format, isBefore, startOfDay } from "date-fns"
+import { enAU } from "date-fns/locale"
 // import { createBooking } from "@/app/actions/create-booking"
 // import { useTransition } from "react"
 // import { useFormStatus } from "react-dom"
@@ -57,10 +57,12 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
     infants: 0,
   })
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [dateError, setDateError] = useState<string | undefined>()
   const [productDetails, setProductDetails] = useState<ProductDetails | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   // State để theo dõi tab nào đang active trên mobile
   const [activeTab, setActiveTab] = useState<'info' | 'booking'>('info')
+  const today = startOfDay(new Date())
 
   // Kiểm tra xem sản phẩm có bị Sold Out không
   const isSoldOut = availabilityStatus.toLowerCase().includes("sold out")
@@ -165,6 +167,28 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
       return
     }
 
+    if (!date) {
+      setDateError("Please select a date")
+      toast({
+        variant: "destructive",
+        title: "Date required",
+        description: "Please select a date for your escape.",
+        className: "rounded-full",
+      })
+      return
+    }
+
+    if (isBefore(date, today)) {
+      setDateError("Cannot select a date in the past")
+      toast({
+        variant: "destructive",
+        title: "Invalid date",
+        description: "Please select a date in the future.",
+        className: "rounded-full",
+      })
+      return
+    }
+
     if (productDetails && date) {
       setIsSubmitting(true)
       const total = calculateTotal()
@@ -196,6 +220,26 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
         description: "Please ensure all details are filled out.",
         className: "rounded-full",
       })
+    }
+  }
+
+  // Cập nhật hàm để validate date 
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      // Kiểm tra nếu ngày trong quá khứ
+      if (isBefore(selectedDate, today)) {
+        setDateError("Cannot select a date in the past")
+        toast({
+          variant: "destructive",
+          title: "Invalid date",
+          description: "Please select a date in the future",
+          className: "rounded-full",
+        })
+        return
+      }
+
+      setDate(selectedDate)
+      setDateError(undefined)
     }
   }
 
@@ -376,25 +420,33 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
 
                   {/* Date Selection */}
                   <div className="flex items-center justify-between space-x-4">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d] w-auto"
-                        >
-                          <CalendarIcon className="h-4 w-4" />
-                          {date ? format(date, "EEE dd MMM yyyy") : "Select date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 z-[9999]" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <div className={dateError ? "border border-red-500 rounded-lg" : ""}>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-[#4f4f4f] hover:border-[#0f373d] hover:text-[#0f373d] w-auto"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                            {date ? format(date, "EEE dd MMM yyyy", { locale: enAU }) : "Select date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={handleDateSelect}
+                            initialFocus
+                            disabled={(date) => isBefore(date, today)}
+                            locale={enAU}
+                            weekStartsOn={0}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    {dateError && (
+                      <div className="absolute -bottom-5 left-0 text-xs text-red-500">{dateError}</div>
+                    )}
                     <span className="rounded bg-orange-100 px-2 py-1 text-xs text-orange-600 whitespace-nowrap">
                       Only {productDetails.max_capacity - (guestCount.adults + guestCount.children)} left
                     </span>
