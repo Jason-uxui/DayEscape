@@ -133,20 +133,100 @@ export default function MapBox({ hotels, selectedHotel, onSelectHotel }: MapBoxP
           const marker = new mapboxgl.Marker(el).setLngLat([hotel.longitude, hotel.latitude]).addTo(map.current)
           markersAdded++
 
-          const dayPassProduct = hotel.products?.find(
-            (product) => product.type?.toLowerCase().includes("day") && product.type?.toLowerCase().includes("pass"),
-          )
-          const dayPassPrice = dayPassProduct?.base_price ? `$${dayPassProduct.base_price.toFixed(2)}` : "N/A"
+          // Đảm bảo luôn gán các hàm carousel lên window (toàn cục)
+          if (typeof window !== "undefined") {
+            window.prevCarousel = function(id) {
+              const box = document.getElementById(id);
+              const track = box.querySelector('.carousel-track');
+              const imgs = box.querySelectorAll('.carousel-img');
+              const dots = box.querySelectorAll('.carousel-dot');
+              let idx = parseInt(track.getAttribute('data-active-idx') || '0');
+              if (dots[idx]) dots[idx].style.background = '#ccc';
+              idx = (idx - 1 + imgs.length) % imgs.length;
+              track.style.transform = `translateX(-${idx * 100}%)`;
+              track.setAttribute('data-active-idx', idx);
+              dots.forEach((dot, i) => {
+                dot.style.background = (i === idx) ? '#fff' : '#ccc';
+              });
+            };
+            window.nextCarousel = function(id, len) {
+              const box = document.getElementById(id);
+              const track = box.querySelector('.carousel-track');
+              const imgs = box.querySelectorAll('.carousel-img');
+              const dots = box.querySelectorAll('.carousel-dot');
+              let idx = parseInt(track.getAttribute('data-active-idx') || '0');
+              if (dots[idx]) dots[idx].style.background = '#ccc';
+              idx = (idx + 1) % len;
+              track.style.transform = `translateX(-${idx * 100}%)`;
+              track.setAttribute('data-active-idx', idx);
+              dots.forEach((dot, i) => {
+                dot.style.background = (i === idx) ? '#fff' : '#ccc';
+              });
+            };
+          }
 
-          const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(`
-              <div class="relative">
-                <div class="p-3 rounded-lg bg-white shadow-md">
-                  <h3 class="text-lg font-semibold text-[#0f373d]">${hotel.name}</h3>
-                  <p class="text-sm text-[#4f4f4f]">${hotel.display_address}</p>
-                  <p class="text-sm font-medium text-[#0f373d] mt-2">Day Pass: ${dayPassPrice}</p>
+          const renderHotelPopup = (hotel) => {
+            console.log('DEBUG hotel.images:', hotel.images, 'typeof:', typeof hotel.images, 'hotel:', hotel);
+            // Đảm bảo lấy đúng mảng ảnh từ cột images (ưu tiên cột images)
+            let images = [];
+            if (Array.isArray(hotel.images)) {
+              images = hotel.images;
+            } else if (typeof hotel.images === "string") {
+              try {
+                images = JSON.parse(hotel.images);
+                if (!Array.isArray(images)) images = [];
+              } catch {
+                images = [];
+              }
+            }
+            // Chỉ fallback sang card_image nếu images rỗng hoặc không hợp lệ
+            if (!images.length && hotel.card_image) images = [hotel.card_image];
+            if (!images.length) images = ["/placeholder.svg?height=300&width=400"];
+
+            // Carousel HTML
+            const carouselId = `carousel-${hotel.id}`;
+            const carouselImages = `
+              <div class="carousel-track" style="display:flex;flex-direction:row;width:320px;height:180px;position:relative;transition:transform 0.5s cubic-bezier(.4,0,.2,1);will-change:transform;" data-active-idx="0">
+                ${images.map((img, idx) => `
+                  <img src="${img}" alt="${hotel.name}" 
+                    style="width:320px;height:180px;object-fit:cover;flex-shrink:0;flex-basis:320px;border-radius:12px 12px 0 0;" 
+                    class="carousel-img" data-idx="${idx}"/>
+                `).join("")}
+              </div>
+            `;
+
+            // Nút chuyển ảnh nếu có nhiều ảnh
+            const carouselNav = images.length > 1 ? `
+              <button style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="window.prevCarousel('${carouselId}')">&#8592;</button>
+              <button style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="window.nextCarousel('${carouselId}', ${images.length})">&#8594;</button>
+              <div style="position:absolute;bottom:12px;left:0;width:100%;display:flex;justify-content:center;gap:6px;z-index:3;">
+                ${images.map((_, idx) => `<span class='carousel-dot' data-dot-idx='${idx}' style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${idx === 0 ? '#fff' : '#ccc'};transition:background 0.2s;"></span>`).join('')}
+              </div>
+            ` : "";
+
+            const dayPassProduct = hotel.products?.find(
+              (product) => product.type?.toLowerCase().includes("day") && product.type?.toLowerCase().includes("pass")
+            );
+            const dayPassPrice = dayPassProduct?.base_price ? `$${dayPassProduct.base_price}` : "N/A";
+            return `
+              <div style="width:320px; border-radius:14px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.08); background:#fff; cursor:pointer;" onclick="window.location.href='/hotels/${encodeURIComponent(hotel.name.replace(/ /g, '-').toLowerCase())}'">
+                <div id="${carouselId}" style="position:relative;width:100%;height:180px;overflow:hidden;">
+                  ${carouselImages}
+                  ${carouselNav}
+                </div>
+                <div style="padding:12px 16px;">
+                  <h3 style="font-size:1.1rem; margin:0 0 4px 0; color:#0f373d; font-weight:600;">${hotel.name}</h3>
+                  <p style="margin:0; color:#4f4f4f; font-size:0.95rem;">${hotel.display_address}</p>
+                  <div style="margin-top:10px; font-weight:500; color:#0f373d;">
+                    Day Pass: <span>${dayPassPrice}</span>
+                  </div>
+                  
                 </div>
               </div>
-            `)
+            `;
+          };
+
+          const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(renderHotelPopup(hotel));
 
           marker.setPopup(popup)
 

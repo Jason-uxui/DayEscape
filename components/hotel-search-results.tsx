@@ -123,7 +123,7 @@ export function HotelSearchResults() {
         const { data: hotelsData, error: hotelsError } = await supabase
           .from("hotels")
           .select(
-            "id, name, full_address, display_address, city, country, latitude, longitude, hotel_group, website, status, custom_note, card_image, updated_at",
+            "id, name, full_address, display_address, city, country, latitude, longitude, hotel_group, website, status, custom_note, card_image, updated_at, images",
           )
           .eq("status", "active")
 
