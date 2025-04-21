@@ -28,13 +28,13 @@ export function HotelCard({ hotel, isSelected, onSelect }: HotelCardProps) {
     >
       {/* Desktop Layout: Horizontal card with image left, content right */}
       <div className="hidden sm:flex gap-4 sm:gap-6 items-start">
-        <div className="relative h-[120px] w-[180px] flex-shrink-0 overflow-hidden rounded-xl">
+        <div className="relative h-[140px] w-[200px] flex-shrink-0 overflow-hidden rounded-xl">
           <Image
             src={hotel.card_image && hotel.card_image.trim() !== "" ? hotel.card_image : defaultImage}
             alt={hotel.name}
             fill
             className="object-cover object-center"
-            sizes="(max-width: 768px) 180px, (max-width: 1200px) 180px, 180px"
+            sizes="(max-width: 768px) 180px, (max-width: 1200px) 200px, 200px"
           />
         </div>
         <div className="flex-1 flex flex-col">

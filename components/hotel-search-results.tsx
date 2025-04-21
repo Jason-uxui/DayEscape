@@ -275,7 +275,7 @@ export function HotelSearchResults() {
       </div>
 
       {/* List View Content */}
-      <div className={`w-full lg:w-1/2 bg-white p-0 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
+      <div className={`w-full lg:w-3/5 bg-white p-0 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
         <HotelList
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
           selectedHotel={selectedHotel}
@@ -284,7 +284,7 @@ export function HotelSearchResults() {
       </div>
 
       {/* Map View Content */}
-      <div className={`w-full lg:w-1/2 lg:h-screen lg:sticky lg:top-0 ${activeView === 'map' ? 'block' : 'hidden lg:block'}`}>
+      <div className={`w-full lg:w-2/5 lg:h-screen lg:sticky lg:top-0 ${activeView === 'map' ? 'block' : 'hidden lg:block'}`}>
         <div className="w-full h-[calc(100vh-56px)] lg:h-screen">
           <MapView
             hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
