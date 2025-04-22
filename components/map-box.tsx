@@ -200,10 +200,10 @@ export default function MapBox({ hotels, selectedHotel, onSelectHotel, specialMa
 
             // Nút chuyển ảnh nếu có nhiều ảnh
             const carouselNav = images.length > 1 ? `
-              <button style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="window.prevCarousel('${carouselId}')">&#8592;</button>
-              <button style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="window.nextCarousel('${carouselId}', ${images.length})">&#8594;</button>
+              <button style="position:absolute;top:50%;left:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="event.stopPropagation();window.prevCarousel('${carouselId}')">&#8592;</button>
+              <button style="position:absolute;top:50%;right:12px;transform:translateY(-50%);background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;z-index:2;font-size:18px;" onclick="event.stopPropagation();window.nextCarousel('${carouselId}', ${images.length})">&#8594;</button>
               <div style="position:absolute;bottom:12px;left:0;width:100%;display:flex;justify-content:center;gap:6px;z-index:3;">
-                ${images.map((_, idx) => `<span class='carousel-dot' data-dot-idx='${idx}' style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${idx === 0 ? '#fff' : '#ccc'};transition:background 0.2s;"></span>`).join('')}
+                ${images.map((_, idx) => `<span class='carousel-dot' data-dot-idx='${idx}' onclick='event.stopPropagation();' style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${idx === 0 ? '#fff' : '#ccc'};transition:background 0.2s;"></span>`).join('')}
               </div>
             ` : "";
 
@@ -212,18 +212,17 @@ export default function MapBox({ hotels, selectedHotel, onSelectHotel, specialMa
             );
             const dayPassPrice = dayPassProduct?.base_price ? `$${dayPassProduct.base_price}` : "N/A";
             return `
-              <div style="width:320px; border-radius:14px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.08); background:#fff; cursor:pointer;" onclick="window.location.href='/hotels/${encodeURIComponent(hotel.name.replace(/ /g, '-').toLowerCase())}'">
-                <div id="${carouselId}" style="position:relative;width:100%;height:180px;overflow:hidden;">
+              <div style="width:320px; border-radius:14px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.08); background:#fff;">
+                <div id="${carouselId}" style="position:relative;width:100%;height:180px;overflow:hidden; cursor:pointer;" onclick="window.location.href='/hotels/${encodeURIComponent(hotel.name.replace(/ /g, '-').toLowerCase())}'">
                   ${carouselImages}
                   ${carouselNav}
                 </div>
                 <div style="padding:12px 16px;">
-                  <h3 style="font-size:1.1rem; margin:0 0 4px 0; color:#0f373d; font-weight:600;">${hotel.name}</h3>
+                  <h3 style="font-size:1.1rem; margin:0 0 4px 0; color:#0f373d; font-weight:600; cursor:pointer;" onclick="window.location.href='/hotels/${encodeURIComponent(hotel.name.replace(/ /g, '-').toLowerCase())}'">${hotel.name}</h3>
                   <p style="margin:0; color:#4f4f4f; font-size:0.95rem;">${hotel.display_address}</p>
                   <div style="margin-top:10px; font-weight:500; color:#0f373d;">
                     Day Pass: <span>${dayPassPrice}</span>
                   </div>
-                  
                 </div>
               </div>
             `;
