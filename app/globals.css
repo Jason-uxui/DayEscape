@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Flodesk Form Custom Padding === */
+#fd-form-68076a402a2e13a96598f741,
+#fd-form-68076a402a2e13a96598f741 > div,
+#fd-form-68076a402a2e13a96598f741 form,
+#fd-form-68076a402a2e13a96598f741 .ff-68076a402a2e13a96598f741__form {
+  padding: 0 !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

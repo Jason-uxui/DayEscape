@@ -199,37 +199,29 @@ export function HotelSearchResults() {
             </div>
           ) : (
             <>
+              {/* Flodesk script trigger */}
+              {/* eslint-disable-next-line react-hooks/rules-of-hooks */}
+              {typeof window !== "undefined" && (
+                (() => {
+                  setTimeout(() => {
+                    if ((window as any).fd && document.getElementById("fd-form-68076a402a2e13a96598f741")) {
+                      (window as any).fd('form', {
+                        formId: '68076a402a2e13a96598f741',
+                        containerEl: '#fd-form-68076a402a2e13a96598f741'
+                      });
+                    }
+                  }, 0);
+                  return null;
+                })()
+              )}
+
               <h2 className="text-2xl font-bold text-[#0c363e] mb-4">
                 {searchInfo.location} is coming soon!
               </h2>
-              <p className="text-[#4f4f4f] mb-6">
+              <p className="text-[#4f4f4f] mb-0">
                 We're currently expanding. Leave your email to be the first to know when new experiences are added to {searchInfo.location}.
               </p>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                setIsSubmitting(true);
-                setTimeout(() => {
-                  setIsSuccess(true);
-                  setEmail("");
-                  setIsSubmitting(false);
-                }, 1000);
-              }} className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full"
-                />
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-[#0c363e] hover:bg-[#0c363e]/90 text-white"
-                >
-                  {isSubmitting ? "Submitting..." : "Notify Me"}
-                </Button>
-              </form>
+              <div id="fd-form-68076a402a2e13a96598f741" className="mt-1"></div>
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-sm text-[#4f4f4f] mb-4">
                   Want to try our available locations?
