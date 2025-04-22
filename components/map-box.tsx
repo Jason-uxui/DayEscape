@@ -29,12 +29,13 @@ interface MapBoxProps {
   hotels: Hotel[]
   selectedHotel: string | null
   onSelectHotel: (id: string) => void
+  specialMarkerAction?: boolean // Nếu true: click marker sẽ mở Google Maps
 }
 
 // Set access token - sử dụng token cố định để đảm bảo hoạt động
 mapboxgl.accessToken = "pk.eyJ1IjoiamFtZXNsbTAwIiwiYSI6ImNtNWdnNzhtMTA3bXgya29yNmlhdGduc2MifQ.-oSDcLb1gE5dYMGhuPpAyg";
 
-export default function MapBox({ hotels, selectedHotel, onSelectHotel }: MapBoxProps) {
+export default function MapBox({ hotels, selectedHotel, onSelectHotel, specialMarkerAction }: MapBoxProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const [lng, setLng] = useState(-153.2917)
@@ -231,8 +232,14 @@ export default function MapBox({ hotels, selectedHotel, onSelectHotel }: MapBoxP
           marker.setPopup(popup)
 
           marker.getElement().addEventListener("click", () => {
-            marker.togglePopup()
-            onSelectHotel(hotel.id)
+            if (specialMarkerAction) {
+              // Mở Google Maps với vị trí khách sạn
+              const url = `https://www.google.com/maps/search/?api=1&query=${hotel.latitude},${hotel.longitude}`;
+              window.open(url, "_blank");
+            } else {
+              marker.togglePopup();
+              onSelectHotel(hotel.id);
+            }
           })
 
           bounds.extend([hotel.longitude, hotel.latitude])

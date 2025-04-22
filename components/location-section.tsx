@@ -53,6 +53,7 @@ export default function LocationSection({ displayAddress, latitude, longitude, p
             ]}
             selectedHotel="1"
             onSelectHotel={() => {}}
+            specialMarkerAction={true}
           />
         )}
       </div>
