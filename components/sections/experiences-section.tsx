@@ -30,7 +30,22 @@ export function ExperiencesSection() {
   const [selectedCity, setSelectedCity] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  const router = useRouter();
+
+  // Flodesk form for 'Other' tab
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      selectedCity === "Other" &&
+      (window as any).fd &&
+      document.getElementById("fd-form-6807676a1954081fad2432ec")
+    ) {
+      (window as any).fd('form', {
+        formId: '6807676a1954081fad2432ec',
+        containerEl: '#fd-form-6807676a1954081fad2432ec'
+      });
+    }
+  }, [selectedCity]);
 
   useEffect(() => {
     async function fetchData() {
@@ -262,6 +277,10 @@ export function ExperiencesSection() {
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : selectedCity === "Other" ? (
+              <div className="mt-8 max-w-md mx-auto">
+                <div id="fd-form-6807676a1954081fad2432ec"></div>
               </div>
             ) : (
               <div className="mt-8 max-w-md mx-auto">
