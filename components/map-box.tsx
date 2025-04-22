@@ -38,9 +38,11 @@ mapboxgl.accessToken = "pk.eyJ1IjoiamFtZXNsbTAwIiwiYSI6ImNtNWdnNzhtMTA3bXgya29yN
 export default function MapBox({ hotels, selectedHotel, onSelectHotel, specialMarkerAction }: MapBoxProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
-  const [lng, setLng] = useState(-153.2917)
-  const [lat, setLat] = useState(-27.4698)
-  const [zoom, setZoom] = useState(9)
+  // Luôn center và zoom vào marker đầu tiên (nếu có), bất kể số lượng hotels
+  const hasHotels = hotels && hotels.length > 0 && hotels[0].latitude && hotels[0].longitude;
+  const [lng, setLng] = useState(hasHotels ? hotels[0].longitude : -153.2917);
+  const [lat, setLat] = useState(hasHotels ? hotels[0].latitude : -27.4698);
+  const [zoom, setZoom] = useState(hasHotels ? 13 : 9);
   const [mapInitialized, setMapInitialized] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
@@ -227,9 +229,10 @@ export default function MapBox({ hotels, selectedHotel, onSelectHotel, specialMa
             `;
           };
 
-          const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(renderHotelPopup(hotel));
-
-          marker.setPopup(popup)
+          if (!specialMarkerAction) {
+            const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(renderHotelPopup(hotel));
+            marker.setPopup(popup)
+          }
 
           marker.getElement().addEventListener("click", () => {
             if (specialMarkerAction) {
