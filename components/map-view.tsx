@@ -21,7 +21,7 @@ interface MapViewProps {
 
 export function MapView(props: MapViewProps) {
   return (
-    <div className="h-full w-full relative bg-gray-100 rounded-lg overflow-hidden">
+    <div className="h-full w-full relative bg-gray-100 rounded-lg overflow-hidden lg:sticky lg:top-[64px] lg:h-[calc(100vh-64px)]">
       <MapBox {...props} />
     </div>
   )

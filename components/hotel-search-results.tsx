@@ -205,12 +205,9 @@ export function HotelSearchResults() {
               <p className="text-[#4f4f4f] mb-6">
                 We're currently expanding. Leave your email to be the first to know when new experiences are added to {searchInfo.location}.
               </p>
-
               <form onSubmit={(e) => {
                 e.preventDefault();
                 setIsSubmitting(true);
-
-                // Simulating an API call
                 setTimeout(() => {
                   setIsSuccess(true);
                   setEmail("");
@@ -233,7 +230,6 @@ export function HotelSearchResults() {
                   {isSubmitting ? "Submitting..." : "Notify Me"}
                 </Button>
               </form>
-
               <div className="mt-8 pt-6 border-t border-gray-100">
                 <p className="text-sm text-[#4f4f4f] mb-4">
                   Want to try our available locations?
@@ -275,7 +271,7 @@ export function HotelSearchResults() {
       </div>
 
       {/* List View Content */}
-      <div className={`w-full lg:w-3/5 bg-white p-0 lg:overflow-y-auto ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
+      <div className={`w-full lg:w-3/5 bg-white p-0 ${activeView === 'list' ? 'block' : 'hidden lg:block'}`}>
         <HotelList
           hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
           selectedHotel={selectedHotel}
@@ -285,15 +281,12 @@ export function HotelSearchResults() {
 
       {/* Map View Content */}
       <div className={`w-full lg:w-2/5 lg:h-screen lg:sticky lg:top-0 ${activeView === 'map' ? 'block' : 'hidden lg:block'}`}>
-        <div className="w-full h-[calc(100vh-56px)] lg:h-screen">
-          <MapView
-            hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
-            selectedHotel={selectedHotel}
-            onSelectHotel={setSelectedHotel}
-          />
-        </div>
+        <MapView
+          hotels={filteredHotels.length > 0 ? filteredHotels : hotels}
+          selectedHotel={selectedHotel}
+          onSelectHotel={setSelectedHotel}
+        />
       </div>
     </div>
   )
 }
-

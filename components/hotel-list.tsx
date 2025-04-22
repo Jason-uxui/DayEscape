@@ -17,7 +17,7 @@ export function HotelList({ hotels, selectedHotel, onSelectHotel }: HotelListPro
   }
 
   return (
-    <div className="divide-y lg:overflow-y-auto lg:max-h-screen lg:h-screen">
+    <div className="divide-y">
       {hotels.map((hotel) => (
         <HotelCard
           key={hotel.id}
