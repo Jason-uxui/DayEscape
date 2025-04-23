@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ProductList from "@/components/product-list"
 import ReviewsSection from "@/components/reviews-section"
 import KeyInfoSection from "@/components/key-info-section"
-import AmenitiesList from "@/components/amenities-list"
+import AmenitiesList from "@/components/amenities-list";
+import { Amenity } from "@/types/amenities";
 import LocationSection from "@/components/location-section"
 import CartSidebar from "@/components/cart-sidebar"
 import { SiteHeader } from "@/components/site-header"
@@ -64,6 +65,7 @@ async function getHotel(idOrName: string) {
 }
 
 export default function HotelPage() {
+  const [amenities, setAmenities] = useState<Amenity[]>([]);
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -88,6 +90,26 @@ export default function HotelPage() {
         setError(error)
       } else if (hotel) {
         setHotel(hotel)
+
+        // Fetch amenities for this hotel
+        const { data: hotelAmenities, error: amenitiesError } = await supabase
+          .from('hotel_amenities')
+          .select('order, amenities:amenity_id(id, name, icon, created_at, description)')
+          .eq('hotel_id', hotel.id)
+          .order('order', { ascending: true });
+        if (!amenitiesError && hotelAmenities) {
+          // Map to Amenity[] and filter out invalid/null
+          // Remove duplicate amenities by id
+          const uniqueAmenities = Array.from(
+            new Map(
+              hotelAmenities
+                .map((ha: any) => ha.amenities)
+                .filter((a: any) => a && a.id && a.name && a.icon)
+                .map((a: any) => [a.id, a])
+            ).values()
+          );
+          setAmenities(uniqueAmenities);
+        }
 
         // Check if this hotel is saved by the user
         const savedHotels = JSON.parse(localStorage.getItem("savedHotels") || "[]")
@@ -443,7 +465,7 @@ export default function HotelPage() {
                 </TabsContent>
               </Tabs>
 
-              <AmenitiesList />
+              <AmenitiesList amenities={amenities} />
               <LocationSection
                 displayAddress={hotel.display_address}
                 latitude={hotel.latitude}
