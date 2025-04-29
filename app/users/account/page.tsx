@@ -5,6 +5,9 @@ import { SiteFooter } from "@/components/sections/site-footer"
 import { AccountDetailsSection } from "@/components/sections/account-details-section"
 import { Suspense } from "react"
 
+// Buộc trang này luôn được tạo động, không pre-render
+export const dynamic = "force-dynamic"
+
 export default function AccountDetailsPage() {
   return (
     <div className="min-h-screen bg-[#fdfaf5] flex flex-col">
