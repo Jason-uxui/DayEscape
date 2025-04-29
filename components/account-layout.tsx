@@ -30,7 +30,8 @@ export function AccountLayout({ children, currentPage }: AccountLayoutProps) {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    if (!user) {
+    // Chỉ redirect khi đang ở client-side và chắc chắn user là null
+    if (typeof window !== 'undefined' && user === null) {
       router.push("/login")
     }
   }, [user, router])
