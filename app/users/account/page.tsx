@@ -5,11 +5,9 @@ import { SiteFooter } from "@/components/sections/site-footer"
 import { AccountDetailsSection } from "@/components/sections/account-details-section"
 import { Suspense } from "react"
 
-// Ngăn việc nội dung của trang này bị lưu cache
-export const revalidate = 0
-
-// Sử dụng server-side generation cho trang yêu cầu xác thực
+// Buộc trang này luôn được tạo động, không pre-render và không revalidate
 export const dynamic = "force-dynamic"
+export const revalidate = false
 
 export default function AccountDetailsPage() {
   return (
