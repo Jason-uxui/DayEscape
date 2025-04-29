@@ -7,7 +7,7 @@ import { Suspense } from "react"
 
 // Buộc trang này luôn được tạo động, không pre-render và không revalidate
 export const dynamic = "force-dynamic"
-export const revalidate = false
+export const revalidate = 0
 
 export default function AccountDetailsPage() {
   return (

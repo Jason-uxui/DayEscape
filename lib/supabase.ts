@@ -18,6 +18,11 @@ export function isSupabaseInitialized() {
   return Boolean(cleanSupabaseUrl && supabaseAnonKey)
 }
 
+// Function to get a Supabase client instance
+export function getSupabaseClient() {
+  return supabaseClient
+}
+
 // Export as both named export and default export to support different import styles
 export { supabaseClient as supabase }
 export default supabaseClient
