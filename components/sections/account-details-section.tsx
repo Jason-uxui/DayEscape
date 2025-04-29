@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { AccountLayout } from "@/components/account-layout"
 import { useAuth } from "@/contexts/AuthContext"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { getSupabaseClient } from "@/lib/supabase"
 import ErrorBoundary from "../ErrorBoundary"
 
 interface FormData {
@@ -32,8 +32,14 @@ export function AccountDetailsSection() {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [supabaseClient, setSupabaseClient] = useState<any>(null)
 
-  const supabase = createClientComponentClient()
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const client = getSupabaseClient()
+      setSupabaseClient(client)
+    }
+  }, [])
 
   const fetchUserData = useCallback(async () => {
     if (!user?.id) {
@@ -43,9 +49,16 @@ export function AccountDetailsSection() {
       return
     }
 
+    if (!supabaseClient) {
+      console.error("Supabase client not initialized")
+      setError("Could not connect to the database")
+      setIsLoading(false)
+      return
+    }
+
     try {
       console.log("Fetching user profile data for user ID:", user.id)
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabaseClient
         .from("profiles")
         .select("*")
         .eq("id", user.id)
@@ -65,7 +78,7 @@ export function AccountDetailsSection() {
         }))
       } else {
         // No profile found, create a new one
-        const { data: newProfile, error: createError } = await supabase
+        const { data: newProfile, error: createError } = await supabaseClient
           .from("profiles")
           .insert({ id: user.id })
           .select()
@@ -97,22 +110,26 @@ export function AccountDetailsSection() {
     } finally {
       setIsLoading(false)
     }
-  }, [user, supabase, toast])
+  }, [user, supabaseClient, toast])
 
   useEffect(() => {
-    if (user) {
+    if (user && supabaseClient) {
       fetchUserData()
     }
-  }, [user, fetchUserData])
+  }, [user, supabaseClient, fetchUserData])
 
   const updateUserProfile = async () => {
     if (!user?.id) {
       throw new Error("No authenticated user found")
     }
 
+    if (!supabaseClient) {
+      throw new Error("Supabase client not initialized")
+    }
+
     try {
       console.log("Updating user profile for user ID:", user.id)
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("profiles")
         .upsert({
           id: user.id,
@@ -149,7 +166,7 @@ export function AccountDetailsSection() {
       await updateUserProfile()
       await fetchUserData()
       toast({
-        variant: "success",
+        variant: "default",
         title: "Account details updated successfully",
         className: "rounded-full",
       })
