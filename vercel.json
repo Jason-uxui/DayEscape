@@ -1,18 +1,7 @@
 {
-    "buildCommand": "turbo build",
-    "installCommand": "npm install --omit=dev",
-    "framework": "nextjs",
-    "regions": [
-        "iad1"
-    ],
-    "crons": {},
-    "functions": {
-        "app/api/**/*.js": {
-            "memory": 1024,
-            "maxDuration": 10
+    "git": {
+        "deploymentEnabled": {
+            "master": true
         }
-    },
-    "buildEnvironment": {
-        "NODE_OPTIONS": "--max-old-space-size=4096"
     }
 }
