@@ -38,6 +38,7 @@ interface ProductDetails {
   max_capacity: number
   images: string[]
   description: string
+  inclusions?: string[] | string // Có thể là mảng hoặc JSON string
   hotels: {
     id: string
     name: string
@@ -82,6 +83,7 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
           max_capacity, 
           images, 
           description,
+          inclusions,
           hotels!inner(
             id,
             name,
@@ -290,7 +292,7 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
                 <h2 className="text-xl font-semibold text-[#333333] md:hidden">{productDetails.name}</h2>
 
                 <div className="mt-4 md:mt-6">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-lg w-full">
+                  <div className="relative aspect-[16/9] overflow-hidden rounded-lg w-full">
                     <img
                       src={selectedImage || productDetails.images[0]}
                       alt={`${productDetails.name} main view`}
@@ -319,9 +321,45 @@ export function ProductDialog({ productId, open, onOpenChange, availabilityStatu
                   </div>
                 </div>
 
-                <div className="mt-6 md:mt-8">
+                <div className="mt-3 md:mt-3">
                   <h3 className="text-lg font-semibold text-[#333333]">{productDetails.name} Details</h3>
-                  <p className="mt-2 md:mt-4 text-[#4f4f4f]">{productDetails.description}</p>
+                  <p className="mt-1 md:mt-1 text-sm text-[#4f4f4f]">{productDetails.description}</p>
+
+                  {/* Inclusions Section */}
+                  {productDetails.inclusions && (
+                    <div className="mt-6">
+                      <h4 className="text-base font-semibold mb-2 text-[#0c363e]">Included</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(() => {
+                          // Parse nếu là JSON string
+                          let inclusions: string[] = [];
+                          if (Array.isArray(productDetails.inclusions)) {
+                            inclusions = productDetails.inclusions;
+                          } else if (typeof productDetails.inclusions === 'string') {
+                            try {
+                              inclusions = JSON.parse(productDetails.inclusions);
+                            } catch {
+                              inclusions = [];
+                            }
+                          }
+                          // Chia 2 cột
+                          const half = Math.ceil(inclusions.length / 2);
+                          const col1 = inclusions.slice(0, half);
+                          const col2 = inclusions.slice(half);
+                          return [col1, col2].map((col, idx) => (
+                            <ul key={idx} className="space-y-1">
+                              {col.map((item, i) => (
+                                <li key={i} className="flex items-start gap-1 text-[#4f4f4f] text-sm">
+                                  <svg className="w-4 h-4 text-[#0c363e] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                  <span>{item}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          ));
+                        })()}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
