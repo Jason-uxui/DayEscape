@@ -1,0 +1,39 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "pipeline": {
+        "build": {
+            "outputs": [
+                ".next/**",
+                "!.next/cache/**"
+            ],
+            "dependsOn": [
+                "^build"
+            ],
+            "env": [
+                "NODE_ENV",
+                "NEXT_PUBLIC_SUPABASE_URL",
+                "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+            ],
+            "cache": true
+        },
+        "start": {
+            "dependsOn": [
+                "build"
+            ],
+            "env": [],
+            "persistent": true
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "lint": {
+            "outputs": []
+        }
+    },
+    "globalEnv": [
+        "NODE_ENV",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    ]
+}

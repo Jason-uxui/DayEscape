@@ -1,0 +1,10 @@
+.git
+**/node_modules
+*.log
+.next/cache
+.turbo
+.vercel
+README.md
+LICENSE
+.npmrc
+.github 

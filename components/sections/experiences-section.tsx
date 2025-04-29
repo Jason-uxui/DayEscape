@@ -5,7 +5,7 @@ import { Bookmark, MapPin, ArrowRight, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { supabase } from "@/lib/supabase"
+import { getSupabaseClient } from "@/lib/supabase"
 import Image from "next/image"
 import { ComingSoonCard } from "@/components/coming-soon-card"
 import { useRouter } from "next/navigation"
@@ -31,6 +31,15 @@ export function ExperiencesSection() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter();
+  const [supabaseClient, setSupabaseClient] = useState<any>(null);
+
+  // Khởi tạo Supabase client chỉ ở client-side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const client = getSupabaseClient();
+      setSupabaseClient(client);
+    }
+  }, []);
 
   // Flodesk form for 'Other' tab
   useEffect(() => {
@@ -49,11 +58,14 @@ export function ExperiencesSection() {
 
   useEffect(() => {
     async function fetchData() {
+      // Nếu chưa có supabaseClient, không thực hiện fetch data
+      if (!supabaseClient) return;
+
       setLoading(true)
       setError(null)
       try {
         // Fetch unique cities
-        const { data: citiesData, error: citiesError } = await supabase
+        const { data: citiesData, error: citiesError } = await supabaseClient
           .from("hotels")
           .select("city")
           .not("city", "is", null)
@@ -74,7 +86,7 @@ export function ExperiencesSection() {
         setCities(uniqueCities)
 
         // Fetch hotels with their products
-        const { data: hotelsData, error: hotelsError } = await supabase
+        const { data: hotelsData, error: hotelsError } = await supabaseClient
           .from("hotels")
           .select(`
             id, 
@@ -119,7 +131,7 @@ export function ExperiencesSection() {
     }
 
     fetchData()
-  }, [])
+  }, [supabaseClient])
 
   const filteredHotels = selectedCity
     ? selectedCity === "Other"
