@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/sections/site-footer"
 import { Search } from "@/components/search"
@@ -9,7 +9,8 @@ import { supabase, isSupabaseInitialized } from "@/lib/supabase"
 import { useSearchParams } from "next/navigation"
 import { LoadingScreen } from "@/components/ui/loading-spinner"
 
-export default function HotelsPage() {
+// Client component that uses useSearchParams
+function HotelsPageContent() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
@@ -59,6 +60,15 @@ export default function HotelsPage() {
       </main>
       <SiteFooter />
     </div>
+  )
+}
+
+// Main page component with Suspense
+export default function HotelsPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <HotelsPageContent />
+    </Suspense>
   )
 }
 
