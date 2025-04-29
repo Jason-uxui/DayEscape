@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -54,7 +54,8 @@ interface BookingDetails {
   customNote: string | null
 }
 
-export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
+// Inner component that uses useSearchParams
+function BookingDetailContent({ bookingId }: BookingDetailSectionProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [booking, setBooking] = useState<BookingDetails | null>(null)
@@ -62,6 +63,7 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
   const [isMobile, setIsMobile] = useState(false)
   const searchParams = useSearchParams()
   const status = (searchParams.get("status") as "upcoming" | "completed" | "cancelled") || "upcoming"
+  const [amenities, setAmenities] = useState<any[]>([])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -271,7 +273,7 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
 
           {/* Amenities List */}
           <div className="mt-8">
-            <AmenitiesList />
+            <AmenitiesList amenities={amenities} />
           </div>
 
           {/* Location Section */}
@@ -390,6 +392,17 @@ export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
         }}
       />
     </div>
+  )
+}
+
+// Main component that wraps the content with Suspense
+export function BookingDetailSection({ bookingId }: BookingDetailSectionProps) {
+  return (
+    <Suspense fallback={<div className="container max-w-6xl mx-auto px-4 py-8 h-64 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0f373d]"></div>
+    </div>}>
+      <BookingDetailContent bookingId={bookingId} />
+    </Suspense>
   )
 }
 

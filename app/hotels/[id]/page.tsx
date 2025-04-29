@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Share, Heart, Copy, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -64,7 +64,8 @@ async function getHotel(idOrName: string) {
   return { hotel: data[0], error: null }
 }
 
-export default function HotelPage() {
+// Separated inner component that uses useSearchParams
+function HotelPageContent() {
   const [amenities, setAmenities] = useState<Amenity[]>([]);
   const params = useParams();
   const searchParams = useSearchParams();
@@ -485,6 +486,15 @@ export default function HotelPage() {
       />
       <SiteFooter />
     </>
+  )
+}
+
+// Main component that wraps the content with Suspense
+export default function HotelPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <HotelPageContent />
+    </Suspense>
   )
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { HotelList } from "./hotel-list"
 import { MapView } from "./map-view"
 import { supabase, isSupabaseInitialized } from "@/lib/supabase"
@@ -36,7 +36,8 @@ interface Hotel {
   products: Product[]
 }
 
-export function HotelSearchResults() {
+// Separated the content that uses useSearchParams
+function HotelSearchResultsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const locationParam = searchParams.get('location')
@@ -280,5 +281,14 @@ export function HotelSearchResults() {
         />
       </div>
     </div>
+  )
+}
+
+// Main component that wraps the content with Suspense
+export function HotelSearchResults() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen">Loading hotels...</div>}>
+      <HotelSearchResultsContent />
+    </Suspense>
   )
 }
