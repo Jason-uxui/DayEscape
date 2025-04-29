@@ -8,6 +8,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { enAU } from "date-fns/locale"
 import { AUSTRALIA_POSTCODES, PostcodeData, findMatchingPostcodes } from "@/lib/postcodes"
 import { DatePicker } from "@/components/common/date-picker"
+import { Suspense } from "react"
 
 // List of popular locations for suggestions
 const POPULAR_LOCATIONS = [
@@ -45,15 +46,19 @@ interface CombinedSuggestion {
   postcode?: string;
 }
 
-export function Search() {
+interface SearchContentProps {
+  locationParam: string | null;
+  dateParam: string | null;
+}
+
+function SearchContent({ locationParam, dateParam }: SearchContentProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const pathname = usePathname()
   const today = startOfDay(new Date())
 
   // Form state with default date as today
-  const [date, setDate] = useState<Date>(today)
-  const [location, setLocation] = useState<string>("")
+  const [date, setDate] = useState<Date>(dateParam ? parse(dateParam, 'yyyy-MM-dd', today) : today)
+  const [location, setLocation] = useState<string>(locationParam || "")
   const [suggestions, setSuggestions] = useState<CombinedSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
   const [isSearching, setIsSearching] = useState<boolean>(false)
@@ -61,25 +66,6 @@ export function Search() {
 
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-
-  // Initialize form values from URL parameters if on hotels page
-  useEffect(() => {
-    if (pathname === '/hotels') {
-      const locationParam = searchParams.get('location')
-      const dateParam = searchParams.get('date')
-
-      if (locationParam) {
-        setLocation(decodeURIComponent(locationParam))
-      }
-
-      if (dateParam) {
-        const parsedDate = parse(dateParam, 'yyyy-MM-dd', new Date())
-        if (isValid(parsedDate)) {
-          setDate(parsedDate)
-        }
-      }
-    }
-  }, [searchParams, pathname])
 
   // Generate combined suggestions
   const generateCombinedSuggestions = (searchTerm: string = "") => {
@@ -314,6 +300,19 @@ export function Search() {
         </Button>
       </div>
     </div>
+  )
+}
+
+export function Search() {
+  const searchParams = useSearchParams()
+
+  return (
+    <Suspense fallback={<div className="rounded-3xl bg-white p-4 shadow-lg relative z-10 animate-pulse h-20"></div>}>
+      <SearchContent
+        locationParam={searchParams?.get("location")}
+        dateParam={searchParams?.get("date")}
+      />
+    </Suspense>
   )
 }
 
